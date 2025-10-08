@@ -1,5 +1,20 @@
-# capstone
-# Problem Statement 
+# Capstone - Group5
+
+# JobHuntCopilot (Capstone Project)
+
+This repository contains the complete source code for **JobHuntCopilot**, an AI-powered job application assistant.
+
+## Structure
+- **jobhuntcopilot-frontend/** → React (Vite + Tailwind) web client
+- **jobhuntcopilot-backend/** → Node.js + Express REST API
+- **jobhuntcopilot-ai/** → Python service for resume-job similarity & cover letter generation
+- **docs/** → Proposal, diagrams, and reports
+
+## Setup
+Each folder has its own README with installation instructions.
+
+
+## Problem Statement 
 
 Job seekers face multiple challenges during the application process: 
 
