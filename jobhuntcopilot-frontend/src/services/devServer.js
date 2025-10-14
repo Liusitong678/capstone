@@ -1,4 +1,4 @@
-// src/services/devServer.js
+// dev environment
 import express from 'express';
 const app = express();
 app.use(express.json());
@@ -19,5 +19,5 @@ app.post('/api/ai/cover-letter', (req, res) => {
 
 app.use((req, res) => res.status(404).json({ error: 'Not Found', path: req.path }));
 
-const PORT = 5050; // ⚠️ 改个端口，避开 5000
+const PORT = 5050;
 app.listen(PORT, '127.0.0.1', () => console.log(`DEV server on http://127.0.0.1:${PORT}`));
