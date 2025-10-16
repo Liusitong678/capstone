@@ -10,6 +10,9 @@ const PORT = process.env.PORT || 4000;
     app.listen(PORT, () => console.log(`🚀 API listening on http://localhost:${PORT}`));
   } catch (err) {
     console.error("DB connection failed:", err.message);
-    process.exit(1);
+    // process.exit(1);
   }
+  app.listen(PORT, () =>
+    console.log(`🚀 API listening on http://localhost:${PORT}`)
+  );
 })();
