@@ -1,2 +1,67 @@
-# Ignore dependencies
+# =========================
+# 🌐 Common Node.js ignore rules
+# =========================
 node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+package-lock.json
+.pnpm-debug.log*
+
+# =========================
+# 🧠 Environment files
+# =========================
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# =========================
+# ⚙️ Build output
+# =========================
+dist/
+build/
+out/
+.next/
+.cache/
+coverage/
+*.log
+
+# =========================
+# 💻 IDE / Editor files
+# =========================
+.vscode/
+.idea/
+*.swp
+*.swo
+*.swn
+*.tmp
+
+# =========================
+# 🧩 OS generated files
+# =========================
+.DS_Store
+Thumbs.db
+
+# =========================
+# 🧱 Project specific
+# =========================
+# Ignore frontend dependencies & builds
+jobhuntcopilot-frontend/node_modules/
+jobhuntcopilot-frontend/build/
+jobhuntcopilot-frontend/.env
+
+# Ignore backend dependencies & builds
+jobhuntcopilot-backend/node_modules/
+jobhuntcopilot-backend/.env
+jobhuntcopilot-backend/logs/
+jobhuntcopilot-backend/temp/
+
+# =========================
+# 🔐 Security-related
+# =========================
+*.pem
+*.key
+*.crt
+*.p12
