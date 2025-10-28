@@ -1,0 +1,79 @@
+/* Container Title */
+.dashboard-title {
+  color: #4b0082; /* deep purple */
+  font-weight: 700;
+}
+
+/* Big Card */
+.big-card {
+    background: linear-gradient(135deg, #e6e9ff24, #d0ced421);
+    border-radius: 20px;
+    padding: 30px;
+    max-width: 1240px;
+    width: 1000px;
+}
+
+/* Section Titles */
+.section-title {
+  color: #6a0dad; /* lilac/purple */
+  font-weight: 600;
+  margin-bottom: 20px;
+}
+
+/* Job Card */
+.job-card {
+  border-radius: 12px;
+  transition: transform 0.2s, box-shadow 0.2s;
+  background-color: #ffffff;
+}
+
+.job-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+}
+
+.job-title {
+  font-weight: 600;
+  color: #4b0082;
+}
+
+.job-desc {
+  font-size: 0.9rem;
+}
+
+/* Match Summary */
+.match-summary {
+    background: linear-gradient(135deg, #e6ccff, #dcd6e54f);
+    border-radius: 12px;
+}
+
+/* Buttons */
+.btn-primary {
+  background-color: #1e3a8acc;
+  border: none;
+}
+.my-5 {
+    margin-top: 11rem !important;
+    margin-bottom: 3rem !important;
+}
+
+.btn-outline-primary {
+  border-color: #6a0dad;
+  color: #6a0dad;
+}
+
+.btn-outline-primary:hover {
+  background-color: #6a0dad;
+  color: white;
+}
+
+/* File name display */
+.file-name {
+  font-size: 0.95rem;
+  color: #4b0082;
+  font-weight: 500;
+}
+text-muted {
+    --bs-text-opacity: 1;
+    color: rgb(15 15 16 / 97%) !important;
+}
