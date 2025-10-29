@@ -3,8 +3,33 @@ const Job = require("../models/job");
 // GET all jobs /api/jobs
 async function listJobs(req, res, next) {
   try {
-    const jobs = await Job.find().sort({ createdAt: -1 });
-    res.json(jobs);
+    // mock data
+    const mockJobs = [
+      {
+        id: "1",
+        title: "Frontend Developer",
+        company: "NovaTech",
+        description: "Work on UI using React and Bootstrap.",
+        applyUrl: "https://example.com/frontend",
+      },
+      {
+        id: "2",
+        title: "Backend Engineer",
+        company: "CodeWorks",
+        description: "Develop RESTful APIs using Node.js and Express.",
+        applyUrl: "https://example.com/backend",
+      },
+      {
+        id: "3",
+        title: "Full Stack Developer",
+        company: "NextWave",
+        description: "Work on both React frontend and Node.js backend.",
+        applyUrl: "https://example.com/fullstack",
+      },
+    ];
+    res.json(mockJobs);
+    // const jobs = await Job.find().sort({ createdAt: -1 });
+    // res.json(jobs);
   } catch (err) {
     next(err);
   }
