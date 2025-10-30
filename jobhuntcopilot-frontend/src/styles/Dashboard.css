@@ -1,65 +1,91 @@
-/* Container Title */
+/* =========================
+   Dashboard Container Title
+========================= */
 .dashboard-title {
-  color: #4b0082; /* deep purple */
+  color: #4b0082; /* Deep purple */
   font-weight: 700;
+  font-size: 1.8rem;
+  margin-bottom: 1.5rem;
 }
 
-/* Big Card */
+/* =========================
+   Big Card Container
+========================= */
 .big-card {
-    background: linear-gradient(135deg, #e6e9ff24, #d0ced421);
-    border-radius: 20px;
-    padding: 30px;
-    max-width: 1240px;
-    width: 1000px;
+  background: linear-gradient(135deg, rgba(230, 233, 255, 0.14), rgba(208, 206, 212, 0.13));
+  border-radius: 20px;
+  padding: 30px;
+  max-width: 1240px;
+  width: 100%;
+  margin: 0 auto;
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.05);
 }
 
-/* Section Titles */
+/* =========================
+   Section Titles
+========================= */
 .section-title {
-  color: #6a0dad; /* lilac/purple */
+  color: #6a0dad; /* Lilac/Purple */
   font-weight: 600;
-  margin-bottom: 20px;
+  font-size: 1.2rem;
+  margin-bottom: 1rem;
 }
 
-/* Job Card */
+/* =========================
+   Job Card
+========================= */
 .job-card {
   border-radius: 12px;
-  transition: transform 0.2s, box-shadow 0.2s;
   background-color: #ffffff;
+  padding: 15px;
+  margin-bottom: 1rem;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
 }
 
 .job-card:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+  transform: translateY(-4px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
 }
 
 .job-title {
   font-weight: 600;
   color: #4b0082;
+  font-size: 1rem;
+  margin-bottom: 0.3rem;
 }
 
 .job-desc {
   font-size: 0.9rem;
+  color: #333333;
 }
 
-/* Match Summary */
+/* =========================
+   Match Summary Card
+========================= */
 .match-summary {
-    background: linear-gradient(135deg, #e6ccff, #dcd6e54f);
-    border-radius: 12px;
+  background: linear-gradient(135deg, #e6ccff, rgba(220, 214, 229, 0.31));
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
 }
 
-/* Buttons */
+/* =========================
+   Buttons
+========================= */
 .btn-primary {
-  background-color: #1e3a8acc;
+  background-color: rgba(30, 58, 138, 0.8);
   border: none;
+  transition: all 0.2s ease-in-out;
 }
-.my-5 {
-    margin-top: 11rem !important;
-    margin-bottom: 3rem !important;
+
+.btn-primary:hover {
+  background-color: #1e3a8a;
 }
 
 .btn-outline-primary {
   border-color: #6a0dad;
   color: #6a0dad;
+  transition: all 0.2s ease-in-out;
 }
 
 .btn-outline-primary:hover {
@@ -67,13 +93,47 @@
   color: white;
 }
 
-/* File name display */
+/* =========================
+   File Name Display
+========================= */
 .file-name {
   font-size: 0.95rem;
   color: #4b0082;
   font-weight: 500;
+  margin-top: 0.5rem;
+  display: block;
 }
-text-muted {
-    --bs-text-opacity: 1;
-    color: rgb(15 15 16 / 97%) !important;
+
+/* =========================
+   Margins & Utility Overrides
+========================= */
+.my-5 {
+  margin-top: 8rem !important;
+  margin-bottom: 3rem !important;
+}
+
+/* =========================
+   Text Muted Override
+========================= */
+.text-muted {
+  color: rgba(15, 15, 16, 0.97) !important;
+}
+
+/* =========================
+   Responsive Adjustments
+========================= */
+@media (max-width: 768px) {
+  .big-card {
+    padding: 20px;
+  }
+
+  .job-card {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .job-card .d-flex {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
 }
