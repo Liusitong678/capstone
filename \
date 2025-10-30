@@ -1,0 +1,48 @@
+Merge remote-tracking branch 'origin/main' into sitong
+
+# Conflicts:
+#	jobhuntcopilot-backend/src/routes/jobs.routes.js
+#	jobhuntcopilot-frontend/package-lock.json
+#
+# It looks like you may be committing a merge.
+# If this is not correct, please run
+#	git update-ref -d MERGE_HEAD
+# and try again.
+
+
+# Please enter the commit message for your changes. Lines starting
+# with '#' will be ignored, and an empty message aborts the commit.
+#
+# On branch sitong
+# Your branch is up to date with 'origin/sitong'.
+#
+# All conflicts fixed but you are still merging.
+#
+# Changes to be committed:
+#	new file:   capstone-main.zip
+#	modified:   jobhuntcopilot-backend/src/controller/jobs.controller.js
+#	modified:   jobhuntcopilot-backend/src/models/job.js
+#	modified:   jobhuntcopilot-backend/src/routes/jobs.routes.js
+#	new file:   jobhuntcopilot-frontend/package-lock.json
+#	modified:   jobhuntcopilot-frontend/package.json
+#	modified:   jobhuntcopilot-frontend/src/App.jsx
+#	deleted:    jobhuntcopilot-frontend/src/controllers/aiController.js
+#	modified:   jobhuntcopilot-frontend/src/main.jsx
+#	modified:   jobhuntcopilot-frontend/src/pages/Dashboard.jsx
+#	modified:   jobhuntcopilot-frontend/src/services/api.js
+#	deleted:    jobhuntcopilot-frontend/src/services/devServer.js
+#	deleted:    jobhuntcopilot-frontend/src/services/server.js
+#	new file:   jobhuntcopilot-frontend/src/styles/dashboard.css
+#	modified:   jobhuntcopilot-frontend/vite.config.js
+#	new file:   package-lock.
+
+
+
+
+
+t commit --no-edit#:wq
+
+
+
+:wq
+
