@@ -1,0 +1,78 @@
+:root {
+  --bg: #f6f9fc;
+  --card: #ffffff;
+  --primary: #2d6cdf;
+  --text: #1f2328;
+  --muted: #6c757d;
+  --shadow: 0 6px 20px rgba(0,0,0,.06);
+  --radius: 16px;
+}
+
+* { box-sizing: border-box; }
+
+.job-detail {
+  width: 100%;
+  min-height: 100vh;
+  padding: 20px;
+  background: var(--bg);
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+}
+
+.job-detail > div, .job-detail > h2, .job-detail > h3, .job-detail > p, .job-detail > a {
+  width: min(900px, 94vw);
+  background: var(--card);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 20px;
+  margin-bottom: 16px;
+}
+
+.job-detail h2 {
+  font-size: 24px;
+  font-weight: 800;
+  color: var(--text);
+}
+
+.job-detail h3 {
+  font-size: 18px;
+  color: var(--muted);
+  margin-top: 4px;
+}
+
+.job-detail p {
+  font-size: 14px;
+  color: var(--text);
+  line-height: 1.5;
+  margin: 8px 0;
+}
+
+.job-detail a {
+  display: inline-block;
+  text-decoration: none;
+  background: var(--primary);
+  color: #fff;
+  padding: 10px 18px;
+  border-radius: 12px;
+  font-weight: 700;
+  box-shadow: 0 6px 16px rgba(45,108,223,.25);
+  transition: filter 0.15s ease;
+}
+
+.job-detail a:hover {
+  filter: brightness(0.95);
+}
+
+.center-tip {
+  margin: auto;
+  background: #fff;
+  padding: 16px 22px;
+  border-radius: 12px;
+  box-shadow: var(--shadow);
+  color: #475569;
+}
+
+.center-tip.error {
+  color: #e11d48;
+}
