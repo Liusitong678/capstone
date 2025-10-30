@@ -1,6 +1,5 @@
 const express = require("express");
 const router = express.Router();
-<<<<<<< HEAD
 // const { listJobs, seedJobs } = require("../controllers/jobs.controller");
 
 // router.get("/", listJobs);
@@ -25,7 +24,6 @@ router.get("/", (req, res) => {
   ];
   res.json({ jobs: mockJobs, message: "This is a mock job listing." });
 });
-=======
 const {
   listJobs,
   getJobById,
@@ -41,6 +39,5 @@ router.post("/", addJob);
 router.put("/:id", updateJob);
 router.delete("/:id", deleteJob);
 router.post("/seed", seedJobs);
->>>>>>> origin/main
 
 module.exports = router;
