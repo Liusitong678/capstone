@@ -1,6 +1,7 @@
 // src/pages/JobBoard.jsx
 import { useEffect, useMemo, useState } from 'react';
 import { fetchJobs } from '../services/api';
+import Navbar from '../components/Navbar';
 import '../styles/dashboard.css';
 
 export default function JobBoard() {
@@ -59,6 +60,7 @@ export default function JobBoard() {
 
   return (
     <div className="board-root">
+      <Navbar />
       <div className="board-wrap">
         {/* left */}
         <aside className="list-pane">
