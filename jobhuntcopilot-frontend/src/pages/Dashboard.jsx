@@ -1,4 +1,3 @@
-// src/pages/JobBoard.jsx
 import { useEffect, useMemo, useState } from 'react';
 import { fetchJobs } from '../services/api';
 import Navbar from '../components/Navbar';
@@ -155,7 +154,6 @@ export default function JobBoard() {
                 >
                 Apply
                 </a>
-                {/* <button className="btn-ghost">subscrib</button> */}
               </div>
             </>
           ) : (
