@@ -1,0 +1,103 @@
+# =====================================
+# 🚫 System & OS Files
+# =====================================
+.DS_Store
+Thumbs.db
+ehthumbs.db
+Icon?
+Desktop.ini
+$RECYCLE.BIN/
+*.swp
+*.swo
+
+# =====================================
+# 🔧 Environment Variables
+# =====================================
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+*.env.*
+
+# =====================================
+# 📦 Node / Backend
+# =====================================
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+package-lock.json
+lerna-debug.log
+logs/
+*.log
+*.pid
+*.seed
+*.pid.lock
+
+# =====================================
+# ⚛️ React / Frontend
+# =====================================
+# Dependencies
+client/node_modules/
+frontend/node_modules/
+
+# Build output
+build/
+dist/
+out/
+.cache/
+.vite/
+.next/
+coverage/
+*.tsbuildinfo
+
+# Temp
+*.tmp
+*.temp
+
+# =====================================
+# 🧠 IDE / Editors
+# =====================================
+.vscode/
+.idea/
+*.sublime-workspace
+*.sublime-project
+*.code-workspace
+*.iml
+*.iws
+*.ipr
+out/
+
+# =====================================
+# 🐳 Docker
+# =====================================
+.docker/
+docker-compose.override.yml
+Dockerfile.dev
+Dockerfile.local
+
+# =====================================
+# 🧰 Miscellaneous
+# =====================================
+*.bak
+*.old
+*.orig
+*.rej
+*.patch
+*.gz
+*.zip
+*.tar
+*.7z
+*.rar
+*.log
+*.sqlite
+*.db
+*.sqlite3
+
+# =====================================
+# 🧪 Testing
+# =====================================
+coverage/
+
