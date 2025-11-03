@@ -1,0 +1,221 @@
+{
+  "name": "jobhuntcopilot_workflow",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "hours",
+              "hoursInterval": 12
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        0
+      ],
+      "id": "5136a7ce-c6e1-41b6-9670-e71e56401a1a",
+      "name": "Schedule Trigger"
+    },
+    {
+      "parameters": {
+        "url": "https://jsearch.p.rapidapi.com/search?query=frontend%20developer%20jobs%20in%20canada&page=1&num_pages=1&country=ca",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "x-rapidapi-key",
+              "value": "f0cdfb7943mshafade0bfee5c0e9p1feda3jsna44a0f31e71e"
+            },
+            {
+              "name": "x-rapidapi-host",
+              "value": "jsearch.p.rapidapi.com"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        224,
+        0
+      ],
+      "id": "162aee16-c49e-4d8a-ae96-b29cda561810",
+      "name": "HTTP Request",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "jsCode": "// Access all input items\nconst allItems = $input.all();\n\n// Debug: Log the structure to see what we're working with\nconsole.log('All items:', JSON.stringify(allItems, null, 2));\n\n// Try different possible locations for the output\nlet rawOutput;\n\nif (allItems[0]?.json?.output) {\n  rawOutput = allItems[0].json.output;\n} else if (allItems[0]?.output) {\n  rawOutput = allItems[0].output;\n} else if (typeof allItems[0] === 'string') {\n  rawOutput = allItems[0];\n} else if (allItems[0]?.json) {\n  // Maybe the whole json object is the output\n  rawOutput = JSON.stringify(allItems[0].json);\n} else {\n  throw new Error('Could not find output data. Structure: ' + JSON.stringify(allItems[0]));\n}\n\n// Extract JSON by finding the first [ and last ]\nconst startIndex = rawOutput.indexOf('[');\nconst endIndex = rawOutput.lastIndexOf(']');\n\nif (startIndex === -1 || endIndex === -1) {\n  throw new Error('Could not find JSON array in output');\n}\n\n// Extract just the JSON array portion\nconst jsonString = rawOutput.substring(startIndex, endIndex + 1);\n\n// Parse the JSON string\nconst jobs = JSON.parse(jsonString);\n\n// Map and clean job data for MongoDB\nreturn jobs.map(job => ({\n  json: {\n    title: job.title,\n    company: job.company || \"Unknown\",\n    description: job.description || \"\",\n    skills: job.skills || [],\n    location: job.location || \"Unknown\",\n    url: job.url,\n    postedAt: job.postedAt\n      ? new Date(job.postedAt)\n      : new Date(),\n    source: \"JSearch\"\n  }\n}));\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        800,
+        0
+      ],
+      "id": "5871700d-ec4f-44d6-96b3-40ce7cb58327",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://10.0.0.38:4000/api/jobs/",
+        "sendBody": true,
+        "contentType": "=json",
+        "specifyBody": "=json",
+        "bodyParameters": {
+          "parameters": [
+            {}
+          ]
+        },
+        "jsonBody": "={{ \n  JSON.stringify({\n    title: $json.title,\n    company: $json.company,\n    description: $json.description,\n    skills: $json.skills,\n    location: $json.location,\n    url: $json.url,\n    postedAt: $json.postedAt,\n    source: $json.source\n  })\n}}\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        1024,
+        0
+      ],
+      "id": "89fb3e64-1d6c-46b4-8ea6-7ee6059a6d5a",
+      "name": "Post Jobs API",
+      "executeOnce": false
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Analyze the data provided below. For each item, extract the following fields:\n- title\n- company\n- description\n- skills\n- location\n- url\n- postedAt\n\nRespond ONLY with a valid JS array of object, where each object in the array represents one item and contains the extracted data. If a field is not present for an item, use `null` as its value. Give array of object.\n{{ $json.data }}",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3,
+      "position": [
+        448,
+        0
+      ],
+      "id": "788f423c-f595-49b0-97b3-caa869748dc1",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-2.5-flash-lite",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        456,
+        224
+      ],
+      "id": "68a525bc-ec56-43e9-8d2c-01a258f28208",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "HhNli0QhFjR6LvVp",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "session"
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        584,
+        224
+      ],
+      "id": "e15199a2-1c62-44d5-997d-8622e9c74cfa",
+      "name": "Simple Memory",
+      "disabled": true
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Post Jobs API",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "d4b2591a-55ad-464b-a2eb-49d90a291ec6",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "7cb09a6ea727db54994f87b2d398de5b2840f57d1b43339d56883fea07b2b8c1"
+  },
+  "id": "R8vRRyemOovtoC8N",
+  "tags": []
+}
