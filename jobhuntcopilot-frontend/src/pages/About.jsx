@@ -76,10 +76,10 @@ const About = () => {
         </Row>
         <Row className="justify-content-center text-center">
           {[
-            { name: "Riwaj Shrestha", role: "Backend Lead" },
-            { name: "Sitong Liu", role: "Backend Integration & AI" },
-            { name: "Aswathy Chandran Kala", role: "Frontend Lead" },
-            { name: "Niravkumar Rajeshbhai Bavadiya", role: "Frontend Support" },
+            { name: "Riwaj Shrestha", role: "Backend & AI" },
+            { name: "Sitong Liu", role: "Backend" },
+            { name: "Aswathy Chandran Kala", role: "Frontend" },
+            { name: "Niravkumar Rajeshbhai Bavadiya", role: "Frontend" },
           ].map((member, index) => (
             <Col key={index} lg={3} md={6} className="mb-4">
               <Card className="border-0 shadow-sm">
