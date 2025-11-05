@@ -84,7 +84,7 @@ export default function DashboardPro() {
             {err && <div className="rb-blank error">{err}</div>}
             {!loading && !err && !visibleJobs.length && <div className="rb-blank">No jobs</div>}
 
-            <Row xs={1} sm={2} lg={2} xl={3} xxl={3} className="g-4">
+            <Row xs={1} sm={2} lg={2} xl={3} xxl={3} className="rb-grid g-4">
               {visibleJobs.map(j => (
                 <Col key={j._uid}>
                   <JobCard job={j} onDetails={setSelected}/>
