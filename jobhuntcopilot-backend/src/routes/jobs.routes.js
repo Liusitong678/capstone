@@ -48,6 +48,5 @@ router.get("/:id", getJobById);
 router.post("/", addJob);
 router.put("/:id", updateJob);
 router.delete("/:id", deleteJob);
-router.post("/seed", seedJobs);
 
 module.exports = router;
