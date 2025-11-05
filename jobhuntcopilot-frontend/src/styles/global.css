@@ -1,0 +1,23 @@
+:root{
+    --primary: #0d6efd;
+    --primary-dark: #1e60e0;
+    --accent-light: #e8f0ff;
+    --accent-bg: #f4f7fb;
+    --text-dark: #1a1a1a;
+    --text-muted: #6c757d;
+  
+    --radius: 16px;
+    --shadow: 0 6px 18px rgba(0,0,0,.08);
+  }
+  
+  body { background: var(--accent-bg); }
+  
+  .btn-primary, .btn-primary:focus {
+    background: var(--primary);
+    border: none;
+  }
+  .btn-primary:hover { background: var(--primary-dark); }
+  
+  .form-range::-webkit-slider-thumb { background-color: var(--primary); }
+  .form-range::-moz-range-thumb     { background-color: var(--primary); }
+  
