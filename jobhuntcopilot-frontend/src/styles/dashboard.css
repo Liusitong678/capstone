@@ -1,169 +1,109 @@
-:root{
-    --bg:#f6f9fc;
-    --card:#ffffff;
-    --primary:#2d6cdf;         /* 主色：清爽蓝 */
-    --primary-weak:#e8f1ff;
-    --text:#1f2328;
-    --muted:#6c757d;
-    --line:#e6ebf1;
-    --chip:#f2f5f8;
-    --shadow:0 6px 20px rgba(0,0,0,.06);
-    --radius:16px;
-  }
-  
-  *{box-sizing:border-box}
-  
-  .board-root{
-    height:100vh;
-    width:100%;
-    background:var(--bg);
-    display:flex;
-    align-items:stretch;
-    justify-content:center;
-  }
-  
-  .board-wrap{
-    width:min(1280px, 94vw);
-    margin:auto;
-    display:grid;
-    grid-template-columns: 1fr 1.8fr;
-    gap:20px;
-  }
-  
-  .list-pane{
-    background:var(--card);
-    border-radius:var(--radius);
-    box-shadow:var(--shadow);
-    padding:8px;
-    overflow:auto;
-    max-height: calc(100vh - 64px);
-  }
-  
-  .list-item{
-    width:100%;
-    text-align:left;
-    border:none;
-    background:transparent;
-    display:block;
-    padding:14px 16px;
-    border-radius:12px;
-    cursor:pointer;
-    transition:all .15s ease;
-  }
-  
-  .list-item:hover{ background:#f7faff; }
+.rb-root{
+  --rb-radius: 16px;
+  --rb-shadow: 0 6px 18px rgba(0,0,0,.08);
+  --rb-bg: var(--accent-bg, #f4f7fb);
+  --rb-primary: var(--primary, #0d6efd);
+  --rb-primary-dark: var(--primary-dark, #1e60e0);
+  --rb-text: var(--text-dark, #1a1a1a);
+  --rb-muted: var(--text-muted, #6c757d);
+  --rb-chip-bg: var(--accent-light, #e8f0ff);
 
-.list-item.active {
-    background: var(--primary);
-    color: #fff;
-    box-shadow: 0 4px 12px rgba(45,108,223,0.25);
-  }
-  
-  .list-item.active .list-title {
-    color: #fff;
-  }
-  
-  .list-item.active .company-line {
-    color: #f1f5ff; 
-  }
-  
-  .list-item:hover:not(.active) {
-    background: #f2f6ff;
-  }
-  
-  .list-row{
-    display:flex; justify-content:space-between; align-items:flex-start;
-  }
-  
-  .list-title{
-    font-weight:700;
-    font-size:18px;
-    line-height:1.2;
-    color: var(--primary);
-  }
-  
-  .company-line{
-    margin-top:8px;
-    color: var(--muted);
-    font-size:14px;
-  }
-  
-  .salary{
-    font-weight:800;
-    color:#e5484d;
-    background:#ffecef;
-    border-radius:10px;
-    padding:2px 10px;
-    font-size:14px;
-  }
-  .salary.big{
-    font-size:22px; padding:6px 12px; border-radius:12px;
-  }
-  
-  .meta-line{
-    display:flex; gap:8px; flex-wrap:wrap; margin-top:8px;
-  }
-  .meta-pill{
-    font-size:12px; color:#4b5563; background:#f3f4f6;
-    padding:4px 8px; border-radius:999px;
-  }
-  
-  .detail-pane{
-    background:var(--card);
-    border-radius:var(--radius);
-    box-shadow:var(--shadow);
-    padding:20px 22px;
-    overflow:auto;
-    max-height: calc(100vh - 64px);
-  }
-  
-  .detail-header{
-    display:flex; justify-content:space-between; align-items:flex-start;
-    border-bottom:1px solid var(--line); padding-bottom:16px; margin-bottom:12px;
-  }
-  .detail-title{
-    font-size:24px; font-weight:800; color:var(--text);
-  }
-  .detail-sub{ color:var(--muted); margin-top:4px; }
-  
-  .mt8{ margin-top:8px; }
-  
-  .detail-section{ margin-top:16px; }
-  .grid-2{ display:grid; grid-template-columns:1fr 1fr; gap:16px; }
-  .section-title{ font-weight:700; margin-bottom:8px; }
-  .desc{ color:#2a2f36; }
-  
-  .chips{ display:flex; flex-wrap:wrap; gap:10px; }
-  .chip{
-    background:var(--chip); padding:8px 12px; border-radius:999px;
-    font-size:13px; color:#374151;
-  }
-  
-  .detail-actions{
-    display:flex; gap:12px; margin-top:20px;
-  }
-  
-  .btn-primary{
-    background:var(--primary);
-    color:#fff; border:none; border-radius:12px;
-    padding:10px 18px; font-weight:700; text-decoration:none;
-    box-shadow:0 6px 16px rgba(45,108,223,.25);
-  }
-  .btn-primary:hover{ 
-    filter:brightness(.96); 
-    color: var(--primary-weak);
+  background: var(--rb-bg);
+  min-height: 100vh;
+  padding-bottom: 32px;
 }
 
-  .btn-primary.disabled{ opacity:.5; pointer-events:none; }
-  
-  .btn-ghost{
-    background:transparent; border:1px solid var(--line);
-    border-radius:12px; padding:10px 16px; color:#0f172a;
-  }
-  
-  .center-tip{
-    margin:auto; background:#fff; padding:16px 22px;
-    border-radius:12px; box-shadow:var(--shadow); color:#475569;
-  }
-  .center-tip.error{ color:#e11d48; }
-  
+.rb-toolbar{
+  border-top: 1px solid #fff;
+  background:var( --rb-primary-dark);
+  color:#fff;
+  padding:.6rem 0;
+  border-bottom:1px solid #fff;
+}
+.rb-toolbar .btn{
+  border-radius: 10px;
+}
+.rb-toolbar .btn.btn-outline-light{
+  --bs-btn-color:#e5e7eb;
+  --bs-btn-border-color: rgba(255,255,255,.35);
+  --bs-btn-hover-bg: rgba(255,255,255,.1);
+  --bs-btn-hover-border-color: rgba(255,255,255,.55);
+}
+
+/* slider thumb 用主色 */
+.rb-toolbar .form-range::-webkit-slider-thumb{ background-color: var(--rb-primary); }
+.rb-toolbar .form-range::-moz-range-thumb{ background-color: var(--rb-primary); }
+
+/* 主内容容器 */
+.rb-content{ padding: 20px; }
+
+/* 左侧 Filter 卡片 */
+.rb-filters{
+  background:#fff;
+  border-radius: var(--rb-radius);
+  box-shadow: var(--rb-shadow);
+  padding:16px;
+  color: var(--rb-text);
+}
+.rb-filters .rb-filters-title{
+  font-weight: 800;
+  margin-bottom: 8px;
+}
+.rb-filters .accordion-button{
+  border-radius: 10px !important;
+}
+.rb-filters .accordion-button:focus{
+  box-shadow: none;
+}
+
+/* 区块标题 */
+.rb-section-title{
+  font-weight: 800;
+  font-size: 1.25rem;
+  color: var(--rb-text);
+}
+
+/* 职位卡片 */
+.rb-card{
+  border: none;
+  border-radius: 20px;
+  background: #fff;
+  box-shadow: var(--rb-shadow);
+  transition: transform .2s ease, box-shadow .2s ease;
+}
+.rb-card:hover{
+  transform: translateY(-3px);
+  box-shadow: 0 10px 24px rgba(0,0,0,.12);
+}
+
+/* 卡片内文本 */
+.rb-title{ font-weight: 800; font-size: 1.1rem; color: var(--rb-text); }
+.rb-company{ font-weight: 600; color: var(--rb-muted); }
+.rb-meta .rb-salary{ font-weight: 800; color: var(--rb-primary-dark); }
+.rb-meta .rb-location{ color: var(--rb-muted); }
+
+/* tag / chip */
+.rb-chip{
+  background: var(--rb-chip-bg);
+  color: var(--rb-primary-dark);
+  border-radius: 999px;
+  padding: 6px 10px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+/* 空状态/加载/错误 */
+.rb-blank{
+  background:#fff;
+  border-radius: var(--rb-radius);
+  box-shadow: var(--rb-shadow);
+  padding: 18px;
+  text-align: center;
+  color: var(--rb-muted);
+}
+.rb-blank.error{ color:#dc3545; }
+
+/* 可选：卡片柔和交错底色（贴近参考图），不想要可删 */
+.rb-content .col > .rb-card:nth-child(3n+1){ background:#eef4ff; }
+.rb-content .col > .rb-card:nth-child(3n+2){ background:#f7fbff; }
+/* 第三张保持纯白 */

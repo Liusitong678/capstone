@@ -1,166 +1,129 @@
-import { useEffect, useMemo, useState } from 'react';
-import { fetchJobs } from '../services/api';
-import Navbar from '../components/Navbar';
-import '../styles/dashboard.css';
+import { useEffect, useMemo, useState } from "react";
+import { Container, Row, Col, Form, InputGroup, Button, Modal, Badge, Stack } from "react-bootstrap";
+import { fetchJobs } from "../services/api";
+import JobCard from "../components/Jobcard";
+import FiltersSidebar from "../components/FiltersSidebar";
+import "../styles/dashboard.css";
 
-export default function JobBoard() {
+export default function DashboardPro() {
   const [jobs, setJobs] = useState([]);
-  const [selectedId, setSelectedId] = useState(null);
+  const [filters, setFilters] = useState({});
+  const [search, setSearch] = useState("");
+  const [salaryMin, setSalaryMin] = useState(0);
+  const [salaryMax, setSalaryMax] = useState(100);
+  const [selected, setSelected] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [err, setErr] = useState('');
+  const [err, setErr] = useState("");
 
   useEffect(() => {
-    const ac = new AbortController();
-  
     (async () => {
       try {
-        const list = await fetchJobs({ signal: ac.signal });
-        setJobs(list);
-        setSelectedId(list[0]?._uid ?? null);
+        const list = await fetchJobs();                 // 从 /api/jobs 拿数据
+        // Lightweight specification: Ensure that each item has _uid
+        const normalized = list.map((j, i) => ({ ...j, _uid: j._uid || j._id || j.id || String(i) }));
+        setJobs(normalized);
       } catch (e) {
-        if (e.name !== "AbortError") {
-          setErr(e.message || "Load fail");
-        }
+        setErr(e.message || "Failed to load");
       } finally {
         setLoading(false);
       }
     })();
-  
-    return () => ac.abort();
   }, []);
-  
 
-  const selected = useMemo(
-    () => jobs.find(j => j._uid === selectedId) || null,
-    [jobs, selectedId]
-  );
-
-  if (loading) {
-    return (
-      <div className="board-root">
-        <div className="center-tip">Loading job positions...</div>
-      </div>
-    );
-  }
-  if (err) {
-    return (
-      <div className="board-root">
-        <div className="center-tip error">{err}</div>
-      </div>
-    );
-  }
-  if (!jobs.length) {
-    return (
-      <div className="board-root">
-        <div className="center-tip">No positions available</div>
-      </div>
-    );
-  }
+  // 简单过滤（按标题/公司 & 伪 salary 范围：从字符串里抽数字）
+  const visibleJobs = useMemo(() => {
+    const q = search.trim().toLowerCase();
+    const toNum = (s) => {
+      if (!s) return NaN;
+      const m = String(s).match(/(\d+(\.\d+)?)/g);
+      return m ? Number(m[0]) : NaN;
+    };
+    return jobs.filter(j => {
+      const okQ = !q || [j.title, j.company].some(x => String(x||"").toLowerCase().includes(q));
+      const n = toNum(j.salary);
+      const okSalary = isNaN(n) ? true : (n >= salaryMin && n <= salaryMax);
+      return okQ && okSalary;
+    });
+  }, [jobs, search, salaryMin, salaryMax]);
 
   return (
-    <div className="board-root">
-      <Navbar />
-      <div className="board-wrap">
-        {/* left */}
-        <aside className="list-pane">
-          {jobs.map((j) => {
-            const active = j._uid === selectedId;
-            return (
-              <button
-                key={j._uid}
-                className={`list-item ${active ? 'active' : ''}`}
-                onClick={() => setSelectedId(j._uid)}
-              >
-                <div className="list-row">
-                  <div className="list-title">
-                    {j.title || 'Unnamed position'}
-                  </div>
-                </div>
+    <div className="rb-root">
 
-                <div className="meta-line">
-                  {j.location && <span className="meta-pill">{j.location}</span>}
-                  {j.exp && <span className="meta-pill">{j.exp}</span>}
-                  {j.edu && <span className="meta-pill">{j.edu}</span>}
-                </div>
+      {/* Secondary screening criteria */}
+      <div className="rb-toolbar">
+        <Container fluid className="d-flex align-items-center gap-3">
+          <Button size="sm" variant="outline-light">Designer ▾</Button>
+          <Button size="sm" variant="outline-light">Work location ▾</Button>
+          <Button size="sm" variant="outline-light">Experience ▾</Button>
+          <Button size="sm" variant="outline-light">Per month ▾</Button>
 
-                <div className="company-line">
-                  {j.company || 'Unknown company'}
-                </div>
-              </button>
-            );
-          })}
-        </aside>
-
-        {/* right */}
-        <main className="detail-pane">
-          {selected ? (
-            <>
-              <header className="detail-header">
-                <div>
-                  <div className="detail-title">{selected.title || 'Unnamed position'}</div>
-                  <div className="detail-sub">{selected.company || 'Unknown company'}</div>
-                  <div className="meta-line mt8">
-                    {selected.location && <span className="meta-pill">{selected.location}</span>}
-                    {selected.exp && <span className="meta-pill">{selected.exp}</span>}
-                    {selected.edu && <span className="meta-pill">{selected.edu}</span>}
-                  </div>
-                </div>
-              </header>
-
-              {/* Skills/Labels */}
-              {Array.isArray(selected.skills) && selected.skills.length > 0 && (
-                <section className="detail-section">
-                  <div className="chips">
-                    {selected.skills.map((s, i) => (
-                      <span key={i} className="chip">{s}</span>
-                    ))}
-                  </div>
-                </section>
-              )}
-
-              {/* describe */}
-              {selected.description && (
-                <section className="detail-section">
-                  <div className="section-title">Job Description</div>
-                  <p className="desc" style={{ whiteSpace: 'pre-wrap' }}>
-                    {selected.description}
-                  </p>
-                </section>
-              )}
-
-              {/* other field */}
-              <section className="detail-section grid-2">
-                {selected.responsibility && (
-                  <div>
-                    <div className="section-title">responsibility</div>
-                    <div className="desc">{selected.responsibility}</div>
-                  </div>
-                )}
-                {selected.requirements && (
-                  <div>
-                    <div className="section-title">requirements</div>
-                    <div className="desc">{selected.requirements}</div>
-                  </div>
-                )}
-              </section>
-
-              <div className="detail-actions">
-                <a
-                  className={`btn-primary ${!selected.applyUrl ? 'disabled' : ''}`}
-                  href={selected.applyUrl || '#'}
-                  target="_blank"
-                  rel="noreferrer"
-                  onClick={e => { if (!selected.applyUrl) e.preventDefault(); }}
-                >
-                Apply
-                </a>
-              </div>
-            </>
-          ) : (
-            <div className="center-tip">Please select the position on the left to view details</div>
-          )}
-        </main>
+          {/* <div className="ms-auto d-flex align-items-center gap-2">
+            <span className="text-white-50 small">Salary range</span>
+            <Form.Range min={0} max={100} value={salaryMin} onChange={(e)=>setSalaryMin(Number(e.target.value))}/>
+            <Form.Range min={0} max={100} value={salaryMax} onChange={(e)=>setSalaryMax(Number(e.target.value))}/>
+          </div> */}
+        </Container>
       </div>
+
+      {/* content */}
+      <Container fluid className="rb-content">
+        <Row className="g-4">
+          {/* Left side filter */}
+          <Col xxl={2} lg={3}>
+            <FiltersSidebar state={filters} setState={setFilters}/>
+          </Col>
+
+          {/* Right card grid*/}
+          <Col xxl={10} lg={9}>
+            <div className="d-flex justify-content-between align-items-center mb-2">
+              <div className="rb-section-title">Recommended jobs</div>
+              <div className="text-muted small">Sort by: <strong>Last updated</strong></div>
+            </div>
+
+            {loading && <div className="rb-blank">Loading…</div>}
+            {err && <div className="rb-blank error">{err}</div>}
+            {!loading && !err && !visibleJobs.length && <div className="rb-blank">No jobs</div>}
+
+            <Row xs={1} sm={2} lg={2} xl={3} xxl={3} className="g-4">
+              {visibleJobs.map(j => (
+                <Col key={j._uid}>
+                  <JobCard job={j} onDetails={setSelected}/>
+                </Col>
+              ))}
+            </Row>
+          </Col>
+        </Row>
+      </Container>
+
+      {/* details Modal（click Details） */}
+      <Modal show={!!selected} onHide={()=>setSelected(null)} centered size="lg">
+        <Modal.Header closeButton>
+          <Modal.Title>
+            {selected?.title}{" "}
+            {selected?.company && <Badge bg="secondary" className="ms-2">{selected.company}</Badge>}
+          </Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          {selected && (
+            <>
+              <Stack direction="horizontal" gap={2} className="flex-wrap mb-3">
+                {selected.location && <Badge bg="light" text="dark">{selected.location}</Badge>}
+                {selected.level && <Badge bg="light" text="dark">{selected.level}</Badge>}
+                {Array.isArray(selected.skills) && selected.skills.map((s,i)=><Badge key={i} bg="light" text="dark">{s}</Badge>)}
+              </Stack>
+              {selected.description && (<p style={{whiteSpace:"pre-wrap"}}>{selected.description}</p>)}
+            </>
+          )}
+        </Modal.Body>
+        <Modal.Footer>
+          {selected?.applyUrl && (
+            <Button as="a" href={selected.applyUrl} target="_blank" rel="noreferrer" variant="primary">
+              Apply
+            </Button>
+          )}
+          <Button variant="outline-secondary" onClick={()=>setSelected(null)}>Close</Button>
+        </Modal.Footer>
+      </Modal>
     </div>
   );
 }
