@@ -1,169 +1,184 @@
-:root{
-    --bg:#f6f9fc;
-    --card:#ffffff;
-    --primary:#2d6cdf;         /* 主色：清爽蓝 */
-    --primary-weak:#e8f1ff;
-    --text:#1f2328;
-    --muted:#6c757d;
-    --line:#e6ebf1;
-    --chip:#f2f5f8;
-    --shadow:0 6px 20px rgba(0,0,0,.06);
-    --radius:16px;
-  }
-  
-  *{box-sizing:border-box}
-  
-  .board-root{
-    height:100vh;
-    width:100%;
-    background:var(--bg);
-    display:flex;
-    align-items:stretch;
-    justify-content:center;
-  }
-  
-  .board-wrap{
-    width:min(1280px, 94vw);
-    margin:auto;
-    display:grid;
-    grid-template-columns: 1fr 1.8fr;
-    gap:20px;
-  }
-  
-  .list-pane{
-    background:var(--card);
-    border-radius:var(--radius);
-    box-shadow:var(--shadow);
-    padding:8px;
-    overflow:auto;
-    max-height: calc(100vh - 64px);
-  }
-  
-  .list-item{
-    width:100%;
-    text-align:left;
-    border:none;
-    background:transparent;
-    display:block;
-    padding:14px 16px;
-    border-radius:12px;
-    cursor:pointer;
-    transition:all .15s ease;
-  }
-  
-  .list-item:hover{ background:#f7faff; }
-
-.list-item.active {
-    background: var(--primary);
-    color: #fff;
-    box-shadow: 0 4px 12px rgba(45,108,223,0.25);
-  }
-  
-  .list-item.active .list-title {
-    color: #fff;
-  }
-  
-  .list-item.active .company-line {
-    color: #f1f5ff; 
-  }
-  
-  .list-item:hover:not(.active) {
-    background: #f2f6ff;
-  }
-  
-  .list-row{
-    display:flex; justify-content:space-between; align-items:flex-start;
-  }
-  
-  .list-title{
-    font-weight:700;
-    font-size:18px;
-    line-height:1.2;
-    color: var(--primary);
-  }
-  
-  .company-line{
-    margin-top:8px;
-    color: var(--muted);
-    font-size:14px;
-  }
-  
-  .salary{
-    font-weight:800;
-    color:#e5484d;
-    background:#ffecef;
-    border-radius:10px;
-    padding:2px 10px;
-    font-size:14px;
-  }
-  .salary.big{
-    font-size:22px; padding:6px 12px; border-radius:12px;
-  }
-  
-  .meta-line{
-    display:flex; gap:8px; flex-wrap:wrap; margin-top:8px;
-  }
-  .meta-pill{
-    font-size:12px; color:#4b5563; background:#f3f4f6;
-    padding:4px 8px; border-radius:999px;
-  }
-  
-  .detail-pane{
-    background:var(--card);
-    border-radius:var(--radius);
-    box-shadow:var(--shadow);
-    padding:20px 22px;
-    overflow:auto;
-    max-height: calc(100vh - 64px);
-  }
-  
-  .detail-header{
-    display:flex; justify-content:space-between; align-items:flex-start;
-    border-bottom:1px solid var(--line); padding-bottom:16px; margin-bottom:12px;
-  }
-  .detail-title{
-    font-size:24px; font-weight:800; color:var(--text);
-  }
-  .detail-sub{ color:var(--muted); margin-top:4px; }
-  
-  .mt8{ margin-top:8px; }
-  
-  .detail-section{ margin-top:16px; }
-  .grid-2{ display:grid; grid-template-columns:1fr 1fr; gap:16px; }
-  .section-title{ font-weight:700; margin-bottom:8px; }
-  .desc{ color:#2a2f36; }
-  
-  .chips{ display:flex; flex-wrap:wrap; gap:10px; }
-  .chip{
-    background:var(--chip); padding:8px 12px; border-radius:999px;
-    font-size:13px; color:#374151;
-  }
-  
-  .detail-actions{
-    display:flex; gap:12px; margin-top:20px;
-  }
-  
-  .btn-primary{
-    background:var(--primary);
-    color:#fff; border:none; border-radius:12px;
-    padding:10px 18px; font-weight:700; text-decoration:none;
-    box-shadow:0 6px 16px rgba(45,108,223,.25);
-  }
-  .btn-primary:hover{ 
-    filter:brightness(.96); 
-    color: var(--primary-weak);
+.rb-root {
+  background: #f6f8fc;
+  min-height: 100vh;
+  padding-bottom: 60px;
+  font-family: "Inter", "Segoe UI", sans-serif;
 }
 
-  .btn-primary.disabled{ opacity:.5; pointer-events:none; }
-  
-  .btn-ghost{
-    background:transparent; border:1px solid var(--line);
-    border-radius:12px; padding:10px 16px; color:#0f172a;
-  }
-  
-  .center-tip{
-    margin:auto; background:#fff; padding:16px 22px;
-    border-radius:12px; box-shadow:var(--shadow); color:#475569;
-  }
-  .center-tip.error{ color:#e11d48; }
-  
+/* Toolbar */
+.rb-toolbar {
+  background: linear-gradient(90deg, #0d6efd, #1e60e0);
+  color: #fff;
+  padding: 0.7rem 0;
+  border-top: 1px solid #fff;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.rb-content {
+  padding: 32px;
+}
+
+/* Filters Sidebar */
+.rb-filters {
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+  padding: 20px;
+  color: #333;
+}
+
+.rb-section-title {
+  font-weight: 700;
+  font-size: 1.25rem;
+  color: #1a1a1a;
+}
+
+/* =============================
+   Job Card Styling
+============================= */
+
+.rb-card {
+  background: #fff;
+  border: none;
+  border-radius: 20px !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 340px; 
+  transition: all 0.25s ease;
+}
+
+.rb-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+}
+
+.rb-card-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.rb-date {
+  font-weight: 600;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  padding: 4px 10px;
+}
+
+.rb-card-inner {
+  height: 240px;
+  border-radius: 14px;
+  padding: 16px;
+  margin-bottom: 12px;
+  min-height: 110px;
+}
+
+.rb-company {
+  font-weight: 600;
+  color: #555;
+  font-size: 0.95rem;
+}
+
+.rb-title {
+  font-weight: 700;
+  color: #111;
+  font-size: 1.1rem;
+  line-height: 1.3;
+  margin-top: 4px;
+  margin-bottom: 0;
+}
+
+/* 卡片主体：技能标签、地点、薪资 */
+.rb-card-body {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  margin: 12px 0;
+}
+
+/* chips */
+.rb-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 10px;
+  max-height: 70px; /* 限制最多显示两行标签 */
+  overflow: hidden;
+}
+
+.rb-chip {
+  background: #e3ebff;
+  color: #1e60e0;
+  border-radius: 999px;
+  padding: 6px 12px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.rb-salary {
+  font-weight: 700;
+  color: #0d6efd;
+  font-size: 0.9rem;
+}
+.rb-location {
+  color: #666;
+  font-size: 0.9rem;
+}
+
+.rb-card-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 8px;
+  margin-top: auto;
+}
+
+/* buttons */
+.rb-card-footer .btn-light {
+  border-radius: 10px;
+  font-weight: 500;
+  background: #f4f5f7;
+  border: none;
+}
+
+.rb-card-footer .btn-light:hover {
+  background: #e2e6ea;
+}
+
+.rb-card-footer .btn-primary {
+  border-radius: 10px;
+  font-weight: 500;
+}
+
+.rb-icon-btn {
+  border: none !important;
+  background: #f8f9fa !important;
+  border-radius: 10px !important;
+  color: #333 !important;
+  font-size: 0.9rem;
+  padding: 2px 8px;
+}
+
+.rb-icon-btn:hover {
+  background: #e7ebef !important;
+}
+
+/* empty */
+.rb-blank {
+  background: #fff;
+  border-radius: 16px;
+  padding: 30px;
+  text-align: center;
+  color: #777;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+}
+
+.rb-blank.error {
+  color: #dc3545;
+}
