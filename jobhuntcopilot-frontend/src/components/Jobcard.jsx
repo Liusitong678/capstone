@@ -6,7 +6,7 @@ function hashCode(str = "") {
   let hash = 0;
   for (let i = 0; i < str.length; i++) {
     hash = (hash << 5) - hash + str.charCodeAt(i);
-    hash |= 0; // Convert to 32-bit integer
+    hash |= 0;
   }
   return Math.abs(hash);
 }
@@ -15,13 +15,13 @@ function Chip({ children }) {
   return <span className="rb-chip">{children}</span>;
 }
 
-export default function JobCard({ job, onDetails }) {
+export default function JobCard({ job, onDetails, onCheckScore, aiScore }) {
   const {
     title = "Untitled role",
     company = "Unknown",
     location,
     salary,
-    date,          
+    date,
     skills = [],
     level,
     schedule,
@@ -30,7 +30,6 @@ export default function JobCard({ job, onDetails }) {
     source,
   } = job;
 
-  // 外链安全兜底（允许后端返回不带协议的链接）
   const rawHref = applyUrl || url || "";
   const safeHref = rawHref
     ? /^https?:\/\//i.test(rawHref)
@@ -38,36 +37,20 @@ export default function JobCard({ job, onDetails }) {
       : `https://${rawHref}`
     : "";
 
-  // Generate stable color index based on "company+title"
   const colorKey = `${company}::${title}`;
   const colorIdx = hashCode(colorKey) % SOFT_BG.length;
   const innerBg = SOFT_BG[colorIdx];
 
   return (
     <Card className="rb-card">
-      {/* inner */}
       <div className="rb-card-inner" style={{ background: innerBg }}>
         <div className="rb-card-head">
           {date ? (
-            <Badge bg="light" text="dark" className="rb-date">
-              {date}
-            </Badge>
-          ) : (
-            <span />
-          )}
+            <Badge bg="light" text="dark" className="rb-date">{date}</Badge>
+          ) : <span />}
           <div className="d-flex gap-2 align-items-center">
-            {source && (
-              <Badge bg="light" text="dark" title="Source">
-                {source}
-              </Badge>
-            )}
-            <Button
-              size="sm"
-              variant="light"
-              className="rb-icon-btn"
-              title="Save"
-              aria-label="Save job"
-            >
+            {source && <Badge bg="light" text="dark" title="Source">{source}</Badge>}
+            <Button size="sm" variant="light" className="rb-icon-btn" title="Save" aria-label="Save job">
               ♡
             </Button>
           </div>
@@ -76,20 +59,14 @@ export default function JobCard({ job, onDetails }) {
         <div className="rb-company">{company}</div>
         <h3 className="rb-title">{title}</h3>
 
-        {/* mian content */}
         <div className="rb-card-body">
-          {/* skills */}
           {(schedule || level || skills.length > 0) && (
             <div className="rb-chips">
               {schedule && <Chip>{schedule}</Chip>}
               {level && <Chip>{level}</Chip>}
-              {skills.slice(0, 6).map((s, i) => (
-                <Chip key={i}>{s}</Chip>
-              ))}
+              {skills.slice(0, 6).map((s, i) => <Chip key={i}>{s}</Chip>)}
             </div>
           )}
-
-          {/* Salary/Position */}
           {(salary || location) && (
             <div>
               {salary && <div className="rb-salary">{salary}</div>}
@@ -99,8 +76,16 @@ export default function JobCard({ job, onDetails }) {
         </div>
       </div>
 
-      {/* buttons */}
-      <div className="rb-card-footer">
+      <div className="rb-card-footer d-flex gap-2">
+        {/* Check AI Score button styled like Apply */}
+        <Button
+          variant="primary"
+          size="sm"
+          onClick={() => onCheckScore(job._uid)}
+        >
+          Check AI Score
+        </Button>
+
         {safeHref ? (
           <Button
             as="a"
@@ -112,13 +97,17 @@ export default function JobCard({ job, onDetails }) {
           >
             Apply
           </Button>
-        ) : (
-          <span />
-        )}
-        <Button variant="light" size="sm" onClick={() => onDetails(job)}>
-          Details
-        </Button>
+        ) : <span /> }
+        <Button variant="light" size="sm" onClick={() => onDetails(job)}>Details</Button>
       </div>
+
+      {/* Show AI Score dynamically */}
+      {aiScore && (
+        <div className="mt-2 p-2 border rounded bg-light">
+          <p className="mb-1"><strong>AI Score:</strong> {(aiScore.score * 100).toFixed(2)}%</p>
+          <p className="mb-0"><strong>Matched Skills:</strong> {aiScore.matchedSkills?.join(', ') || 'No skills matched'}</p>
+        </div>
+      )}
     </Card>
   );
 }
