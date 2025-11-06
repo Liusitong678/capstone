@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Container, Row, Col, Form, Button, Modal, Badge, Stack } from "react-bootstrap";
 import { fetchJobs, callScore } from "../services/api";
 import JobCard from "../components/JobCard";
+
 import FiltersSidebar from "../components/FiltersSidebar";
 import "../styles/dashboard.css";
 
@@ -20,7 +21,7 @@ export default function DashboardPro() {
   useEffect(() => {
     (async () => {
       try {
-        const list = await fetchJobs(); // 从 /api/jobs 拿数据
+        const list = await fetchJobs(); 
         const normalized = list.map((j, i) => ({
           ...j,
           _uid: j._uid || j._id || j.id || String(i),
