@@ -29,13 +29,18 @@ export default function JobDetails() {
 
     try {
       setCoverLoading(true);
-      const res = await fetch("/api/ai/cover-letter", {
+      
+      const res = await fetch("http://localhost:4000/api/ai/cover-letter", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ jobId: job._uid }),
+        body: JSON.stringify({
+          jobTitle: job.title,
+          jobDescription: job.description
+        }),
       });
       const data = await res.json();
-      setCoverLetter(data.text);  // save response
+
+      setCoverLetter(data.text?.content);  // save response
       setShowModal(true);          // open modal
     } catch (err) {
       console.error(err);
