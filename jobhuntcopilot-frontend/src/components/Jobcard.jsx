@@ -15,13 +15,13 @@ function Chip({ children }) {
   return <span className="rb-chip">{children}</span>;
 }
 
-export default function JobCard({ job, onDetails }) {
+export default function JobCard({ job, onDetails, onApply }) {
   const {
     title = "Untitled role",
     company = "Unknown",
     location,
     salary,
-    date,          
+    date,
     skills = [],
     level,
     schedule,
@@ -102,16 +102,17 @@ export default function JobCard({ job, onDetails }) {
       {/* buttons */}
       <div className="rb-card-footer">
         {safeHref ? (
-          <Button
-            as="a"
-            href={safeHref}
-            target="_blank"
-            rel="noopener noreferrer"
-            variant="primary"
-            size="sm"
-          >
-            Apply
-          </Button>
+        <Button   //change. nb
+          variant="primary"
+          size="sm"
+          onClick={() => {
+            if (onApply) onApply(job);   // <-- call only if onApply exists
+          }}
+        >
+          Apply
+        </Button>
+
+
         ) : (
           <span />
         )}

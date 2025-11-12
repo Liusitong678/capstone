@@ -4,6 +4,8 @@ import { fetchJobs } from "../services/api";
 import JobCard from "../components/Jobcard";
 import FiltersSidebar from "../components/FiltersSidebar";
 import "../styles/dashboard.css";
+import { useNavigate } from "react-router-dom";
+
 
 export default function DashboardPro() {
   const [jobs, setJobs] = useState([]);
@@ -14,6 +16,9 @@ export default function DashboardPro() {
   const [selected, setSelected] = useState(null);
   const [loading, setLoading] = useState(true);
   const [err, setErr] = useState("");
+
+  const navigate = useNavigate();
+
 
   useEffect(() => {
     (async () => {
@@ -39,7 +44,7 @@ export default function DashboardPro() {
       return m ? Number(m[0]) : NaN;
     };
     return jobs.filter(j => {
-      const okQ = !q || [j.title, j.company].some(x => String(x||"").toLowerCase().includes(q));
+      const okQ = !q || [j.title, j.company].some(x => String(x || "").toLowerCase().includes(q));
       const n = toNum(j.salary);
       const okSalary = isNaN(n) ? true : (n >= salaryMin && n <= salaryMax);
       return okQ && okSalary;
@@ -70,7 +75,7 @@ export default function DashboardPro() {
         <Row className="g-4">
           {/* Left side filter */}
           <Col xxl={2} lg={3}>
-            <FiltersSidebar state={filters} setState={setFilters}/>
+            <FiltersSidebar state={filters} setState={setFilters} />
           </Col>
 
           {/* Right card grid*/}
@@ -87,7 +92,11 @@ export default function DashboardPro() {
             <Row xs={1} sm={2} lg={2} xl={3} xxl={3} className="rb-grid g-4">
               {visibleJobs.map(j => (
                 <Col key={j._uid}>
-                  <JobCard job={j} onDetails={setSelected}/>
+                  <JobCard //change. nb
+                    job={j}
+                    onDetails={setSelected}
+                    onApply={(job) => navigate(`/job/${job._uid}`)}  
+                  />
                 </Col>
               ))}
             </Row>
@@ -96,7 +105,7 @@ export default function DashboardPro() {
       </Container>
 
       {/* details Modal（click Details） */}
-      <Modal show={!!selected} onHide={()=>setSelected(null)} centered size="lg">
+      <Modal show={!!selected} onHide={() => setSelected(null)} centered size="lg">
         <Modal.Header closeButton>
           <Modal.Title>
             {selected?.title}{" "}
@@ -109,19 +118,26 @@ export default function DashboardPro() {
               <Stack direction="horizontal" gap={2} className="flex-wrap mb-3">
                 {selected.location && <Badge bg="light" text="dark">{selected.location}</Badge>}
                 {selected.level && <Badge bg="light" text="dark">{selected.level}</Badge>}
-                {Array.isArray(selected.skills) && selected.skills.map((s,i)=><Badge key={i} bg="light" text="dark">{s}</Badge>)}
+                {Array.isArray(selected.skills) && selected.skills.map((s, i) => <Badge key={i} bg="light" text="dark">{s}</Badge>)}
               </Stack>
-              {selected.description && (<p style={{whiteSpace:"pre-wrap"}}>{selected.description}</p>)}
+              {selected.description && (<p style={{ whiteSpace: "pre-wrap" }}>{selected.description}</p>)}
             </>
           )}
         </Modal.Body>
         <Modal.Footer>
           {selected?.applyUrl && (
-            <Button as="a" href={selected.applyUrl} target="_blank" rel="noreferrer" variant="primary">
+            <Button   //change. nb
+              variant="primary"
+              onClick={() => {
+                setSelected(null);
+                navigate(`/job/${selected._uid}`);
+              }}
+            >
               Apply
             </Button>
+
           )}
-          <Button variant="outline-secondary" onClick={()=>setSelected(null)}>Close</Button>
+          <Button variant="outline-secondary" onClick={() => setSelected(null)}>Close</Button>
         </Modal.Footer>
       </Modal>
     </div>
