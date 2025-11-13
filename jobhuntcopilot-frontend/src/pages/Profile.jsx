@@ -341,4 +341,4 @@ const ProfilePage = () => {
   );
 };
 
-export default About;
+export default ProfilePage;
