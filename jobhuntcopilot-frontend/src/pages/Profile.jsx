@@ -4,6 +4,9 @@ import { Upload, Mail, MapPin, Briefcase, Award, FileText, Settings, Edit2, Save
 import { useNavigate } from 'react-router-dom';
 import { fetchSavedJobs } from '../services/api';
 import "../styles/profile.css";
+import { Container, Row, Col, Card } from "react-bootstrap";
+import ResumeViewer from "../components/ResumeViewer";
+
 
 const ProfilePage = () => {
   const [editMode, setEditMode] = useState(false);
@@ -209,6 +212,11 @@ const ProfilePage = () => {
                     <Upload size={16} /> Upload Resume
                   </button>
                 )}
+
+                <div className="container mt-4">
+                  <h2>Your Profile</h2>
+                  <ResumeViewer />
+                </div>
               </div>
             </aside>
 
