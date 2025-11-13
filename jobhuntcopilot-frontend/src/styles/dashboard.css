@@ -182,3 +182,9 @@
 .rb-blank.error {
   color: #dc3545;
 }
+
+
+.rb-save-btn { border-radius: 999px; }
+.rb-save-btn.is-saved { color: #ffc107; }         /* 金色 */
+.rb-save-btn.is-saved:hover { filter: brightness(0.95); }
+

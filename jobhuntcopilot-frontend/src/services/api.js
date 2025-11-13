@@ -85,5 +85,26 @@ export async function fetchJobById(id, { signal } = {}) {
   return normalizeJob(obj);
 }
 
+export async function fetchSavedJobs() {
+  const res = await fetch('/api/saved-jobs');
+  if (!res.ok) throw new Error('Failed to fetch saved jobs');
+  const ids = await res.json();        // ["jobId1","jobId2",...]
+  return new Set(ids);
+}
+
+export async function saveJob(jobId) {
+  const res = await fetch('/api/saved-jobs', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ jobId }),
+  });
+  if (!res.ok) throw new Error('Save failed');
+}
+
+export async function unsaveJob(jobId) {
+  const res = await fetch(`/api/saved-jobs/${jobId}`, { method: 'DELETE' });
+  if (!res.ok) throw new Error('Unsave failed');
+}
+
   
   
