@@ -1,6 +1,14 @@
-// JobCard.jsx
 import { Card, Badge, Button } from "react-bootstrap";
+
 const SOFT_BG = ["#FFE7D3", "#DDF7EC", "#E8F0FF", "#F7E8FF", "#FFF4E8"];
+
+function hashString(str) {
+  let hash = 0;
+  for (let i = 0; i < str.length; i++) {
+    hash = (hash << 5) - hash + str.charCodeAt(i);
+  }
+  return Math.abs(hash);
+}
 
 function Chip({ children }) {
   return <span className="rb-chip">{children}</span>;
@@ -24,13 +32,15 @@ export default function JobCard({ job, onDetails, saved = false, onToggleSave })
   const rawHref = applyUrl || url || "";
   const safeHref = rawHref ? (/^https?:\/\//i.test(rawHref) ? rawHref : `https://${rawHref}`) : "";
 
-  const bg = SOFT_BG[Math.abs((job._uid || "").charCodeAt?.(0) || 0) % SOFT_BG.length];
+  // different color
+  const key = job._uid || job.id || job.title || "x";
+  const bg = SOFT_BG[hashString(key) % SOFT_BG.length];
 
   return (
     <Card className="rb-card">
-      {/* tob bar*/}
+      {/* Top bar */}
       <div className="rb-card-head">
-        {date ? <Badge bg="light" text="dark" className="rb-date">{date}</Badge> : <span/>}
+        {date ? <Badge bg="light" text="dark" className="rb-date">{date}</Badge> : <span />}
         <div className="d-flex gap-2 align-items-center">
           {source && <Badge bg="light" text="dark">{source}</Badge>}
 
@@ -44,11 +54,10 @@ export default function JobCard({ job, onDetails, saved = false, onToggleSave })
           >
             {saved ? "★" : "☆"}
           </Button>
-
         </div>
       </div>
 
-      {/* 内层柔色块 */}
+      {/* 内层颜色块（随机柔色） */}
       <div className="rb-card-inner" style={{ background: bg }}>
         <div className="rb-company">{company}</div>
         <h3 className="rb-title">{title}</h3>
@@ -71,12 +80,20 @@ export default function JobCard({ job, onDetails, saved = false, onToggleSave })
         </div>
       </div>
 
+      {/* bottom area */}
       <div className="rb-card-footer">
         {safeHref ? (
-          <Button as="a" href={safeHref} target="_blank" rel="noopener noreferrer" variant="primary" size="sm">
+          <Button
+            as="a"
+            href={safeHref}
+            target="_blank"
+            rel="noopener noreferrer"
+            variant="primary"
+            size="sm"
+          >
             Apply
           </Button>
-        ) : <span/>}
+        ) : <span />}
         <Button variant="light" size="sm" onClick={() => onDetails(job)}>Details</Button>
       </div>
     </Card>
