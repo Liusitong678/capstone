@@ -1,5 +1,6 @@
 import React from "react";
 import { Container, Row, Col, Card } from "react-bootstrap";
+import ResumeViewer from "../components/ResumeViewer";
 
 const About = () => {
   return (
@@ -107,6 +108,11 @@ const About = () => {
           </Col>
         </Row>
       </Container>
+
+      <div className="container mt-4">
+        <h2>Your Profile</h2>
+        <ResumeViewer />
+      </div>
     </div>
   );
 };
