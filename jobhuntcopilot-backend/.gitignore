@@ -6,3 +6,4 @@ dist
 .vscode
 .idea
 coverage
+src/firebase/serviceAccountKey.json
