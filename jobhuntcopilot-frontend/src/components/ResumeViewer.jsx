@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Spinner, Alert, Button, Card } from "react-bootstrap";
+import { fetchLatestResume } from "../services/api";
 
 const ResumeViewer = () => {
   const [resume, setResume] = useState(null);
@@ -9,16 +10,14 @@ const ResumeViewer = () => {
   useEffect(() => {
     const fetchResume = async () => {
       try {
-        const res = await fetch("http://localhost:4000/api/resume/latest");
-
-        if (!res.ok) {
-          throw new Error("Resume not found");
+        const data = await fetchLatestResume();
+        if (data.length === 0) {
+          setError("No resume found. Please upload your resume.");
+        } else {
+          setResume(data.resume);
         }
-
-        const data = await res.json();
-        setResume(data.resume);
       } catch (err) {
-        setError("No resume found. Please upload one!");
+        setError(err.message || "Failed to load resume.");
       } finally {
         setLoading(false);
       }
