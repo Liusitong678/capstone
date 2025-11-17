@@ -12,11 +12,13 @@ import {
   Spinner,
 } from "react-bootstrap";
 import { Link } from "react-router-dom";
+import bg from "../assets/bg-au.jpg";
 import { fetchJobs, fetchSavedJobs, saveJob, unsaveJob } from "../services/api";
 import JobCard from "../components/Jobcard";
 import FiltersSidebar from "../components/FiltersSidebar";
 import Pager from "../components/Pager";
 import "../styles/dashboard.css";
+import "../styles/app-bg.css";
 import { useAuth } from "../firebase/useAuth";
 
 export default function Dashboard() {
@@ -127,30 +129,32 @@ export default function Dashboard() {
 
   if (!firebaseUser) {
     return (
-      <div className="rb-root">
-        <Container
-          className="py-5 d-flex justify-content-center align-items-center"
-          style={{ minHeight: "60vh" }}
-        >
-          <div
-            className="bg-white shadow-sm rounded-4 p-4 p-md-5 text-center"
-            style={{ maxWidth: 460, width: "100%" }}
+      <div className="app-bg" style={{ backgroundImage: `url(${bg})` }}>
+        <div className="app-content">
+          <Container
+            className="py-5 d-flex justify-content-center align-items-center"
+            style={{ minHeight: "60vh" }}
           >
-            <h4 className="mb-2">Welcome to JobHunt Copilot</h4>
-            <p className="text-muted mb-4">
-              Sign in to discover recommended jobs, save roles, and track your
-              applications in one place.
-            </p>
-            <div className="d-flex justify-content-center gap-2">
-              <Button as={Link} to="/login" variant="primary">
-                Login
-              </Button>
-              <Button as={Link} to="/signup" variant="outline-primary">
-                Sign Up
-              </Button>
+            <div
+              className="bg-white shadow-sm rounded-4 p-4 p-md-5 text-center"
+              style={{ maxWidth: 460, width: "100%" }}
+            >
+              <h4 className="mb-2">Welcome to JobHunt Copilot</h4>
+              <p className="text-muted mb-4">
+                Sign in to discover recommended jobs, save roles, and track your
+                applications in one place.
+              </p>
+              <div className="d-flex justify-content-center gap-2">
+                <Button as={Link} to="/login" variant="primary">
+                  Login
+                </Button>
+                <Button as={Link} to="/signup" variant="outline-primary">
+                  Sign Up
+                </Button>
+              </div>
             </div>
-          </div>
-        </Container>
+          </Container>
+        </div>
       </div>
     );
   }
