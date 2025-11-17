@@ -1,0 +1,170 @@
+:root{
+    --brand: #0d6efd;
+    --brand-600: #0b5ed7;
+    --text: #1f2937;
+    --muted: #6b7280;
+    --card-bg: rgba(255,255,255,0.78);
+    --card-border: rgba(255,255,255,0.65);
+    --shadow: 0 10px 30px rgba(2,6,23,.12);
+    --radius-xl: 20px;
+  }
+
+  .login-page-wrap {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+  
+    background-image: url("../assets/bg-login.jpg");
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+  
+    backdrop-filter: blur(4px);
+  }
+
+  .login-page-wrap::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: rgba(255, 255, 255, 0.5);
+    backdrop-filter: blur(4px);
+    z-index: -1;
+  }
+  
+  .bg-bubble{
+    position: absolute; border-radius: 9999px; filter: blur(50px); opacity: .6;
+  }
+  .bg-bubble.b1{ width: 260px; height: 260px; background: #cfe2ff; top: -60px; left: -40px; }
+  .bg-bubble.b2{ width: 200px; height: 200px; background: #d1fae5; bottom: 80px; right: 60px; }
+  .bg-bubble.b3{ width: 160px; height: 160px; background: #fde68a; top: 40%; right: 20%; opacity:.35; }
+  
+  .auth-container{
+    width: 100%;
+    max-width: 480px;
+    padding: 24px;
+  }
+  .login-card {
+    width: 100%;
+    max-width: 420px;
+    border: 1px solid var(--card-border);
+    border-radius: var(--radius-xl) !important;
+    background: var(--card-bg);
+    backdrop-filter: blur(12px);
+    box-shadow: var(--shadow);
+    padding: 28px 26px;
+    margin: 0 auto;    
+    border-radius: 16px;
+    border: 1px solid rgba(12, 14, 75, 0.05);
+  }
+  
+  
+  .brand{
+    text-align: center;
+    margin-bottom: 12px;
+  }
+  .brand-logo {
+    width: 50px;
+    height: 50px;
+  }
+  
+  .brand-icon{
+    width: 56px; height: 56px; border-radius: 14px;
+    display: grid; place-items: center;
+    background: #e7f0ff; color: var(--brand);
+    margin: 0 auto 10px;
+    font-size: 26px;
+    box-shadow: 0 8px 18px rgba(13,110,253,.18);
+  }
+  .brand-title{
+    margin: 0;
+    font-weight: 800;
+    letter-spacing: .2px;
+    color: var(--text);
+  }
+  .brand-subtitle{
+    margin: 4px 0 0;
+    color: var(--muted);
+    font-size: .95rem;
+  }
+  
+  .auth-form{ margin-top: 8px; }
+  .auth-label{
+    font-weight: 600;
+    color: #374151;
+  }
+  
+  .auth-input{
+    padding: .72rem .9rem;
+    border-radius: 12px;
+    border: 1px solid #e5e7eb;
+    background: rgba(255,255,255,.9);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.5);
+    transition: border .15s ease, box-shadow .15s ease, background .15s ease;
+  }
+  .auth-input::placeholder{ color: #a1a1aa; }
+  .auth-input:focus{
+    border-color: #bfd6ff;
+    box-shadow: 0 0 0 4px rgba(13,110,253,.12);
+  }
+  
+  /* 操作区 */
+  .auth-actions{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin: 12px 0 2px;
+  }
+  
+  .auth-btn{
+    width: 100%;
+    border-radius: 12px !important;
+    padding: .7rem 1rem !important;
+    font-weight: 600 !important;
+    background: var(--brand) !important;
+    border: 1px solid rgba(13,110,253,.3) !important;
+    transition: transform .06s ease, box-shadow .2s ease, background .2s ease;
+  }
+  .auth-btn:hover{ background: var(--brand-600) !important; }
+  .auth-btn:active{ transform: translateY(1px); }
+  
+  .link-muted{
+    margin-left: 12px;
+    font-size: .9rem;
+    color: #6b7280;
+    text-decoration: none;
+  }
+  .link-muted:hover{ text-decoration: underline; color: #374151; }
+  
+  .auth-note{
+    text-align: center;
+    margin: 14px 0 0;
+    color: #6b7280;
+    font-size: .95rem;
+  }
+  .link-strong{
+    color: var(--brand);
+    font-weight: 600;
+    text-decoration: none;
+  }
+  .link-strong:hover{ color: var(--brand-600); text-decoration: underline; }
+  
+  .auth-alert{
+    border-radius: 12px;
+    padding: .6rem .8rem;
+    font-size: .95rem;
+  }
+  
+  @media (max-width: 480px){
+    .auth-card{ padding: 22px 18px; }
+    .auth-container{ padding: 16px; }
+    .brand-title{ font-size: 1.25rem; }
+  }
+  
+  @media (prefers-reduced-motion: reduce){
+    .auth-btn{ transition: none; }
+    .auth-input{ transition: none; }
+  }
+  

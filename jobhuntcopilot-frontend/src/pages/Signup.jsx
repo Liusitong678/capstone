@@ -4,93 +4,131 @@ import { auth } from "../firebase/firebase";
 import { useNavigate, Link } from "react-router-dom";
 import { Container, Form, Button, Card, Alert, Spinner } from "react-bootstrap";
 
+import logo from "../assets/logo2.svg";
+import bg from "../assets/bg-login.jpg";
+import "../styles/auth.css";
+
 const Signup = () => {
-    const navigate = useNavigate();
-    const [email, setEmail] = useState("");
-    const [password, setPassword] = useState("");
-    const [confirm, setConfirm] = useState("");
+  const navigate = useNavigate();
 
-    const [error, setError] = useState("");
-    const [loading, setLoading] = useState(false);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirm, setConfirm] = useState("");
 
-    const handleSignup = async (e) => {
-        e.preventDefault();
-        setError("");
-        setLoading(true);
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
-        if (password !== confirm) {
-            setError("Passwords do not match.");
-            setLoading(false);
-            return;
-        }
+  // 将 Firebase 错误转成人话（可按需扩展）
+  const prettyError = (code = "") => {
+    if (code.includes("email-already-in-use")) return "This email is already registered.";
+    if (code.includes("invalid-email")) return "Please enter a valid email address.";
+    if (code.includes("weak-password")) return "Password should be at least 6 characters.";
+    return "Sign up failed. Please try again.";
+  };
 
-        try {
-            await createUserWithEmailAndPassword(auth, email, password);
-            navigate("/"); // Redirect to home/dashboard
-        } catch (err) {
-            setError(err.message);
-        }
+  const handleSignup = async (e) => {
+    e.preventDefault();
+    setError("");
+    setLoading(true);
 
-        setLoading(false);
-    };
+    if (password !== confirm) {
+      setError("Passwords do not match.");
+      setLoading(false);
+      return;
+    }
 
-    return (
-        <Container className="d-flex justify-content-center mt-5">
-            <Card style={{ width: "420px" }} className="p-4 shadow-sm">
-                <h3 className="text-center mb-3">Create Account</h3>
+    try {
+      await createUserWithEmailAndPassword(auth, email, password);
+      navigate("/"); 
+    } catch (err) {
+      setError(prettyError(err?.code));
+    } finally {
+      setLoading(false);
+    }
+  };
 
-                {error && <Alert variant="danger">{error}</Alert>}
+  return (
+    <div className="login-page-wrap" style={{ backgroundImage: `url(${bg})` }}>
+      <Container className="auth-container">
+        <Card className="p-4 shadow-sm login-card">
+          <div className="brand">
+            <div className="brand-icon">
+              <img src={logo} alt="Logo" className="brand-logo" />
+            </div>
+            <h3 className="brand-title">Create Account</h3>
+            <p className="brand-subtitle">Join JobHunt Copilot</p>
+          </div>
 
-                <Form onSubmit={handleSignup}>
-                    <Form.Group className="mb-3">
-                        <Form.Label>Email address</Form.Label>
-                        <Form.Control
-                            type="email"
-                            required
-                            value={email}
-                            placeholder="Enter email"
-                            onChange={(e) => setEmail(e.target.value)}
-                        />
-                    </Form.Group>
+          {error && (
+            <Alert variant="danger" className="auth-alert">
+              {error}
+            </Alert>
+          )}
 
-                    <Form.Group className="mb-3">
-                        <Form.Label>Password (min 6 chars)</Form.Label>
-                        <Form.Control
-                            type="password"
-                            required
-                            value={password}
-                            placeholder="Enter password"
-                            onChange={(e) => setPassword(e.target.value)}
-                        />
-                    </Form.Group>
+          <Form onSubmit={handleSignup} className="auth-form">
+            <Form.Group className="mb-3">
+              <Form.Label className="auth-label">Email address</Form.Label>
+              <Form.Control
+                className="auth-input"
+                type="email"
+                required
+                placeholder="you@example.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+              />
+            </Form.Group>
 
-                    <Form.Group className="mb-4">
-                        <Form.Label>Confirm Password</Form.Label>
-                        <Form.Control
-                            type="password"
-                            required
-                            value={confirm}
-                            placeholder="Confirm password"
-                            onChange={(e) => setConfirm(e.target.value)}
-                        />
-                    </Form.Group>
+            <Form.Group className="mb-3">
+              <Form.Label className="auth-label">Password (min 6 chars)</Form.Label>
+              <Form.Control
+                className="auth-input"
+                type="password"
+                required
+                minLength={6}
+                placeholder="Your password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+              />
+            </Form.Group>
 
-                    <Button
-                        type="submit"
-                        className="w-100"
-                        disabled={loading}
-                        variant="primary"
-                    >
-                        {loading ? <Spinner animation="border" size="sm" /> : "Sign Up"}
-                    </Button>
+            <Form.Group className="mb-2">
+              <Form.Label className="auth-label">Confirm password</Form.Label>
+              <Form.Control
+                className="auth-input"
+                type="password"
+                required
+                placeholder="Confirm password"
+                value={confirm}
+                onChange={(e) => setConfirm(e.target.value)}
+              />
+            </Form.Group>
 
-                    <p className="text-center mt-3">
-                        Already have an account? <Link to="/login">Login</Link>
-                    </p>
-                </Form>
-            </Card>
-        </Container>
-    );
+            <div className="auth-actions">
+              <Button
+                type="submit"
+                className="auth-btn"
+                disabled={loading}
+                variant="primary"
+              >
+                {loading ? <Spinner animation="border" size="sm" /> : "Sign Up"}
+              </Button>
+            </div>
+
+            <p className="auth-note">
+              Already have an account?{" "}
+              <Link to="/login" className="link-strong">
+                Login
+              </Link>
+            </p>
+          </Form>
+        </Card>
+      </Container>
+
+      <div className="bg-bubble b1" />
+      <div className="bg-bubble b2" />
+      <div className="bg-bubble b3" />
+    </div>
+  );
 };
 
 export default Signup;

@@ -1,10 +1,24 @@
 import { useEffect, useMemo, useState } from "react";
-import { Container, Row, Col, Form, InputGroup, Button, Modal, Badge, Stack } from "react-bootstrap";
+import {
+  Container,
+  Row,
+  Col,
+  Form,
+  InputGroup,
+  Button,
+  Modal,
+  Badge,
+  Stack,
+  Spinner,
+} from "react-bootstrap";
+import { Link } from "react-router-dom";
+import bg from "../assets/bg-au.jpg";
 import { fetchJobs, fetchSavedJobs, saveJob, unsaveJob } from "../services/api";
 import JobCard from "../components/Jobcard";
 import FiltersSidebar from "../components/FiltersSidebar";
 import Pager from "../components/Pager";
 import "../styles/dashboard.css";
+import "../styles/app-bg.css";
 import { useAuth } from "../firebase/useAuth";
 
 export default function Dashboard() {
@@ -95,9 +109,57 @@ export default function Dashboard() {
     }
   };
 
-  // Wait for Firebase auth
-  if (authLoading) return <div className="rb-blank">Loading session…</div>;
-  if (!firebaseUser) return <div className="rb-blank">Please login to view jobs.</div>;
+  /** ===== 未登录 & 恢复 session 的 UI ===== */
+
+  if (authLoading) {
+    return (
+      <div className="rb-root">
+        <Container
+          className="py-5 d-flex justify-content-center align-items-center"
+          style={{ minHeight: "60vh" }}
+        >
+          <div className="text-muted text-center">
+            <Spinner animation="border" size="sm" className="me-2" />
+            Restoring your session…
+          </div>
+        </Container>
+      </div>
+    );
+  }
+
+  if (!firebaseUser) {
+    return (
+      <div className="app-bg" style={{ backgroundImage: `url(${bg})` }}>
+        <div className="app-content">
+          <Container
+            className="py-5 d-flex justify-content-center align-items-center"
+            style={{ minHeight: "60vh" }}
+          >
+            <div
+              className="bg-white shadow-sm rounded-4 p-4 p-md-5 text-center"
+              style={{ maxWidth: 460, width: "100%" }}
+            >
+              <h4 className="mb-2">Welcome to JobHunt Copilot</h4>
+              <p className="text-muted mb-4">
+                Sign in to discover recommended jobs, save roles, and track your
+                applications in one place.
+              </p>
+              <div className="d-flex justify-content-center gap-2">
+                <Button as={Link} to="/login" variant="primary">
+                  Login
+                </Button>
+                <Button as={Link} to="/signup" variant="outline-primary">
+                  Sign Up
+                </Button>
+              </div>
+            </div>
+          </Container>
+        </div>
+      </div>
+    );
+  }
+
+  /** ===== 已登录正常页面 ===== */
 
   return (
     <div className="rb-root">
@@ -128,7 +190,9 @@ export default function Dashboard() {
           <Col xxl={10} lg={9}>
             <div className="d-flex justify-content-between align-items-center mb-2">
               <div className="rb-section-title">Recommended jobs</div>
-              <div className="text-muted small">Sort by: <strong>Last updated</strong></div>
+              <div className="text-muted small">
+                Sort by: <strong>Last updated</strong>
+              </div>
             </div>
 
             {loading && <div className="rb-blank">Loading…</div>}
@@ -149,7 +213,14 @@ export default function Dashboard() {
               />
             )}
 
-            <Row xs={1} sm={2} lg={2} xl={3} xxl={3} className="rb-grid g-4">
+            <Row
+              xs={1}
+              sm={2}
+              lg={2}
+              xl={3}
+              xxl={3}
+              className="rb-grid g-4"
+            >
               {pageItems.map((j) => (
                 <Col key={j._uid}>
                   <JobCard
@@ -182,19 +253,35 @@ export default function Dashboard() {
           <Modal.Title>
             {selected?.title}
             {selected?.company && (
-              <Badge bg="secondary" className="ms-2">{selected.company}</Badge>
+              <Badge bg="secondary" className="ms-2">
+                {selected.company}
+              </Badge>
             )}
           </Modal.Title>
         </Modal.Header>
         <Modal.Body>
           {selected && (
             <>
-              <Stack direction="horizontal" gap={2} className="flex-wrap mb-3">
-                {selected.location && <Badge bg="light" text="dark">{selected.location}</Badge>}
-                {selected.level && <Badge bg="light" text="dark">{selected.level}</Badge>}
+              <Stack
+                direction="horizontal"
+                gap={2}
+                className="flex-wrap mb-3"
+              >
+                {selected.location && (
+                  <Badge bg="light" text="dark">
+                    {selected.location}
+                  </Badge>
+                )}
+                {selected.level && (
+                  <Badge bg="light" text="dark">
+                    {selected.level}
+                  </Badge>
+                )}
                 {Array.isArray(selected.skills) &&
                   selected.skills.map((s, i) => (
-                    <Badge key={i} bg="light" text="dark">{s}</Badge>
+                    <Badge key={i} bg="light" text="dark">
+                      {s}
+                    </Badge>
                   ))}
               </Stack>
               {selected.description && (
