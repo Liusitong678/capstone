@@ -1,4 +1,3 @@
-// src/pages/Signup.jsx
 import React, { useState } from "react";
 import { createUserWithEmailAndPassword } from "firebase/auth";
 import { auth } from "../firebase/firebase";
@@ -40,7 +39,7 @@ const Signup = () => {
 
     try {
       await createUserWithEmailAndPassword(auth, email, password);
-      navigate("/"); // 注册成功后跳转到首页/仪表盘
+      navigate("/"); 
     } catch (err) {
       setError(prettyError(err?.code));
     } finally {
@@ -125,7 +124,6 @@ const Signup = () => {
         </Card>
       </Container>
 
-      {/* 背景装饰泡泡（和 Login 一致） */}
       <div className="bg-bubble b1" />
       <div className="bg-bubble b2" />
       <div className="bg-bubble b3" />
