@@ -1,5 +1,5 @@
 const supabase = require("../config/supabase");
-const Resume = require("../models/Resume");
+const User = require("../models/User");
 
 exports.uploadResume = async (req, res) => {
   try {
@@ -10,7 +10,8 @@ exports.uploadResume = async (req, res) => {
     const fileExt = req.file.originalname.split(".").pop();
     const fileName = `resume-${Date.now()}.${fileExt}`;
 
-    // Upload to Supabase
+        // Upload to Supabase
+
     const { data, error: uploadError } = await supabase.storage
       .from(process.env.SUPABASE_BUCKET)
       .upload(fileName, req.file.buffer, {
@@ -28,35 +29,20 @@ exports.uploadResume = async (req, res) => {
       .from(process.env.SUPABASE_BUCKET)
       .getPublicUrl(fileName).data.publicUrl;
 
-    // Save metadata
-    const resume = await Resume.create({
-      fileName: req.file.originalname,
-      fileUrl: publicUrl,
-      userId: "default-user"
-    });
+    // update user with resume URL
+    const updatedUser = await User.findOneAndUpdate(
+      { firebaseUid: req.user.uid },
+      { resumeUrl: publicUrl },
+      { new: true }
+    );
 
-    res.status(201).json({
+    return res.status(200).json({
       message: "Resume uploaded successfully",
-      resume,
+      resumeUrl: updatedUser.resumeUrl,
     });
 
   } catch (err) {
     console.error("Upload Error:", err);
-    res.status(500).json({ message: "Server error", error: err.message });
-  }
-};
-
-exports.getLatestResume = async (req, res) => {
-  try {
-    const resume = await Resume.findOne().sort({ uploadedAt: -1 });
-
-    if (!resume) {
-      return res.status(404).json({ message: "No resume found" });
-    }
-
-    res.status(200).json({ resume });
-  } catch (err) {
-    console.error("Fetch resume error:", err);
-    res.status(500).json({ message: "Server error" });
+    return res.status(500).json({ message: "Server error", error: err.message });
   }
 };
