@@ -3,7 +3,7 @@ import AppNavbar from "./components/Navbar";
 import Dashboard from "./pages/Dashboard";
 import Profile from "./pages/Profile";
 import About from "./pages/About";
-import SavedJobs from "./pages/SavedJobs";
+// import SavedJobs from "./pages/SavedJobs";
 import Signup from "./pages/Signup.jsx";
 import Login from "./pages/Login.jsx";
 
@@ -18,7 +18,7 @@ function App() {
                 <Route path="/" element={<Dashboard />} />
                 <Route path="/profile" element={<Profile />} />
                 <Route path="/about" element={<About />} />
-                <Route path="/saved" element={<SavedJobs />} />
+                {/* <Route path="/saved" element={<SavedJobs />} /> */}
 
                 {/* Auth */}
                 <Route path="/signup" element={<Signup />} />
