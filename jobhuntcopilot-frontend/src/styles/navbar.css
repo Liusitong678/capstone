@@ -46,14 +46,14 @@
 }
 
 .create-account-btn {
-  background: linear-gradient(90deg, #006bff, #44b2ff);
+  background: linear-gradient(90deg, #006bff, #44b2ff) !important;
   border: 1px solid #d4d4d4 !important;
-  padding: 0.4rem 1rem;
+  padding: 0.4rem 1rem !important;
   color: #fff !important;
-  border-radius: 8px;
-  font-weight: 600;
-  box-shadow: 0px 4px 10px rgba(0, 115, 255, 0.3);
-  transition: 0.2s ease-in-out;
+  border-radius: 8px !important;
+  font-weight: 600 !important;
+  box-shadow: 0px 4px 10px rgba(0, 115, 255, 0.3) !important;
+  transition: 0.2s ease-in-out !important;
 }
 
 .create-account-btn:hover {

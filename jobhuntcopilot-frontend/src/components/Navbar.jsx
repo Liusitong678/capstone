@@ -71,7 +71,7 @@ const AppNavbar = () => {
               to="/signup"
               className="create-account-btn mobile-create-btn"
             >
-              SignUp
+               <RiUser3Fill /> SignUp
             </Button>
           )}
 
