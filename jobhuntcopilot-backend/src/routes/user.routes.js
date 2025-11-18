@@ -1,17 +1,29 @@
 const express = require("express");
 const router = express.Router();
-const { setUserRole } = require("../controller/user.controller");
+
+const {
+  createProfile,
+  getProfile,
+  updateProfile,
+  setUserRole
+} = require("../controller/user.controller");
+
 const verifyFirebaseToken = require("../middleware/auth");
 
-
-
-console.log("Loaded setUserRole:", setUserRole);
+// For debugging in console
+console.log("Loaded controller methods:", {
+  createProfile,
+  getProfile,
+  updateProfile,
+  setUserRole
+});
 console.log("verifyFirebaseToken:", verifyFirebaseToken);
 
-router.post("/make-me-admin", async (req, res) => {
-  const adminAuth = require("../firebase/firebaseAdmin").adminAuth;
 
-  const { uid } = req.body; // Your Firebase UID
+// DEVELOPMENT ONLY – make admin
+router.post("/make-me-admin", async (req, res) => {
+  const { adminAuth } = require("../firebase/firebaseAdmin");
+  const { uid } = req.body;
 
   if (!uid) return res.status(400).json({ message: "Missing uid" });
 
@@ -25,12 +37,22 @@ router.post("/make-me-admin", async (req, res) => {
 });
 
 
-// Allow only authenticated admins to update roles
+// CREATE PROFILE  (POST /api/users/create-profile)
+router.post("/create-profile", verifyFirebaseToken, createProfile);
+
+
+// GET PROFILE (GET /api/users/me)
+router.get("/me", verifyFirebaseToken, getProfile);
+
+
+// UPDATE PROFILE (PATCH /api/users/update)
+router.patch("/update", verifyFirebaseToken, updateProfile);
+
+
+// SET ROLE (ADMIN ONLY)
 router.post("/set-role", verifyFirebaseToken, async (req, res) => {
   try {
-    const { role: userRole } = req.user;
-
-    if (userRole !== "admin") {
+    if (req.user.role !== "admin") {
       return res.status(403).json({ message: "Only admins can set roles" });
     }
 
@@ -41,5 +63,6 @@ router.post("/set-role", verifyFirebaseToken, async (req, res) => {
     res.status(500).json({ message: "Server error", error: err.message });
   }
 });
+
 
 module.exports = router;

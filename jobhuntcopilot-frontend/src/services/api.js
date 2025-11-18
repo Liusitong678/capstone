@@ -1,48 +1,46 @@
 import axios from "axios";
 import { getAuth } from "firebase/auth";
 
-// Create Axios instance
+// Axios Instance
 const api = axios.create({
-  baseURL: "/api", // proxy from Vite → backend
+  baseURL: "/api",     // Vite proxy → backend
   headers: {
     "Accept": "application/json",
     "Content-Type": "application/json",
   },
 });
 
-// Request Interceptor: Add Firebase Token
-api.interceptors.request.use(async (config) => {
-  const auth = getAuth();
-  const user = auth.currentUser;
+// Request Interceptor – Attach Firebase ID Token
+api.interceptors.request.use(
+  async (config) => {
+    const auth = getAuth();
+    const user = auth.currentUser;
 
-  if (user) {
-    const token = await user.getIdToken();
-    config.headers.Authorization = `Bearer ${token}`;
-  }
-
-  return config;
-}, (error) => {
-  return Promise.reject(error);
-});
-
-// Response Interceptor
-api.interceptors.response.use(
-    (response) => response.data,
-    (error) => {
-      const message =
-          error.response?.data?.message ||
-          error.message ||
-          "API Request Failed";
-
-      return Promise.reject(new Error(message));
+    if (user) {
+      const token = await user.getIdToken();
+      config.headers.Authorization = `Bearer ${token}`;
     }
+
+    return config;
+  },
+  (error) => Promise.reject(error)
 );
 
-// ======================
+// Response Interceptor – Normalize errors
+api.interceptors.response.use(
+  (response) => response.data,
+  (error) => {
+    const message =
+      error.response?.data?.message ||
+      error.message ||
+      "API request failed";
+    return Promise.reject(new Error(message));
+  }
+);
+
 // Helpers
-// ======================
 const fmtDate = (iso) => {
-  if (!iso) return '';
+  if (!iso) return "";
   try {
     const d = new Date(iso);
     return d.toLocaleDateString("en-US", {
@@ -75,9 +73,7 @@ function normalizeJob(j, idx = 0) {
   };
 }
 
-// ======================
-// AI Scoring
-// ======================
+// AI Scoring + AI Cover Letter
 export const callScore = async (payload) => {
   return await api.post("/ai/score", payload);
 };
@@ -86,9 +82,7 @@ export const createCoverLetter = async (payload) => {
   return await api.post("/ai/cover-letter", payload);
 };
 
-// ======================
 // Jobs
-// ======================
 export const fetchJobs = async () => {
   const data = await api.get("/jobs");
   const list = Array.isArray(data) ? data : data?.jobs || [];
@@ -100,24 +94,33 @@ export const fetchJobById = async (id) => {
   return normalizeJob(obj);
 };
 
+// Resume
 export const fetchLatestResume = async () => {
   return await api.get("/resume/latest");
 };
 
-// ======================
 // Saved Jobs
-// ======================
 export const fetchSavedJobs = async () => {
   const data = await api.get("/saved-jobs");
   return new Set(data || []);
 };
 
 export const saveJob = async (jobId) => {
-  await api.post("/saved", { jobId });
+  return await api.post("/saved-jobs", { jobId });
 };
 
 export const unsaveJob = async (jobId) => {
-  await api.delete(`/saved/${jobId}`);
+  return await api.delete(`/saved-jobs/${jobId}`);
+};
+
+// User Profile
+export const fetchMyProfile = async () => {
+  const res = await api.get("/users/me");
+  return res.user;
+};
+
+export const updateUserProfile = async (payload) => {
+  return await api.patch("/users/update", payload);
 };
 
 export default api;

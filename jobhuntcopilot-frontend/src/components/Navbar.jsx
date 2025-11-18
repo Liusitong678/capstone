@@ -20,7 +20,7 @@ const AppNavbar = () => {
 
 
   return (
-      <Navbar expand="lg" variant="dark" className="custom-navbar py-3" sticky="top">
+      <Navbar expand="lg" variant="dark" className="custom-navbar" sticky="top">
         <Container fluid className="px-5">
 
           {/* Brand / Logo */}

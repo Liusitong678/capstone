@@ -1,60 +1,44 @@
-import React, { useEffect, useState } from "react";
-import { Spinner, Alert, Button, Card } from "react-bootstrap";
-import { fetchLatestResume } from "../services/api";
+// src/components/ResumeViewer.jsx
+import React from "react";
+import { Card, Button } from "react-bootstrap";
 
-const ResumeViewer = () => {
-  const [resume, setResume] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
-
-  useEffect(() => {
-    const fetchResume = async () => {
-      try {
-        const data = await fetchLatestResume();
-        if (data.length === 0) {
-          setError("No resume found. Please upload your resume.");
-        } else {
-          setResume(data.resume);
-        }
-      } catch (err) {
-        setError(err.message || "Failed to load resume.");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchResume();
-  }, []);
-
-  if (loading) {
-    return <Spinner animation="border" variant="primary" />;
+// Minimal modern resume viewer
+const ResumeViewer = ({ url }) => {
+  if (!url) {
+    return (
+      <div className="text-muted p-3 text-center">
+        No resume uploaded.
+      </div>
+    );
   }
 
-  if (error) {
-    return <Alert variant="warning">{error}</Alert>;
-  }
+  // Get file name from URL
+  const fileName = url.split("/").pop();
 
   return (
-    <Card className="p-4 shadow-sm">
-      <h4>Your Latest Resume</h4>
+    <Card className="p-3 resume-viewer-card">
+      {/* Header */}
+      <h5 className="resume-title mb-3">Resume Preview</h5>
 
-      <p><strong>File:</strong> {resume.fileName}</p>
-      <p><strong>Uploaded:</strong> {new Date(resume.uploadedAt).toLocaleString()}</p>
+      {/* File Name */}
+      <p className="resume-file mb-2">
+        <strong>File:</strong> {fileName}
+      </p>
 
+      {/* PDF Frame */}
       <iframe
-        src={resume.fileUrl}
-        title="Resume PDF"
-        width="100%"
-        height="600px"
-        style={{ border: "1px solid #ccc", borderRadius: "8px" }}
+        src={url}
+        title="Resume"
+        className="resume-frame"
       />
 
+      {/* Download */}
       <div className="mt-3">
         <Button
-          variant="primary"
-          href={resume.fileUrl}
+          href={url}
           target="_blank"
           rel="noopener noreferrer"
+          className="download-btn"
         >
           Download Resume
         </Button>

@@ -6,6 +6,6 @@ const { getLatestResume } = require("../controller/resume.controller");
 const router = express.Router();
 
 router.post("/upload", upload.single("resume"), uploadResume);
-router.get("/latest", getLatestResume);
+// router.get("/latest", getLatestResume);
 
 module.exports = router;

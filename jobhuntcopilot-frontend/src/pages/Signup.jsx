@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { createUserWithEmailAndPassword } from "firebase/auth";
+import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
 import { auth } from "../firebase/firebase";
 import { useNavigate, Link } from "react-router-dom";
 import { Container, Form, Button, Card, Alert, Spinner } from "react-bootstrap";
@@ -11,6 +11,10 @@ import "../styles/auth.css";
 const Signup = () => {
   const navigate = useNavigate();
 
+  // NEW FIELDS
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
@@ -18,7 +22,6 @@ const Signup = () => {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
-  // 将 Firebase 错误转成人话（可按需扩展）
   const prettyError = (code = "") => {
     if (code.includes("email-already-in-use")) return "This email is already registered.";
     if (code.includes("invalid-email")) return "Please enter a valid email address.";
@@ -37,10 +40,40 @@ const Signup = () => {
       return;
     }
 
+    if (!firstName.trim() || !lastName.trim()) {
+      setError("Please enter your first and last name.");
+      setLoading(false);
+      return;
+    }
+
     try {
-      await createUserWithEmailAndPassword(auth, email, password);
-      navigate("/"); 
+      // 1. Create Firebase user
+      const userCred = await createUserWithEmailAndPassword(auth, email, password);
+
+      // 2. Update Firebase displayName
+      await updateProfile(userCred.user, {
+        displayName: `${firstName} ${lastName}`,
+      });
+
+      // 3. Save user profile in MongoDB via backend
+      const token = await userCred.user.getIdToken();
+
+      await fetch("/api/users/create-profile", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          firstName,
+          lastName,
+          email,
+        }),
+      });
+
+      navigate("/");
     } catch (err) {
+      console.error("Signup error:", err);
       setError(prettyError(err?.code));
     } finally {
       setLoading(false);
@@ -66,6 +99,34 @@ const Signup = () => {
           )}
 
           <Form onSubmit={handleSignup} className="auth-form">
+
+            {/* FIRST NAME */}
+            <Form.Group className="mb-3">
+              <Form.Label className="auth-label">First Name</Form.Label>
+              <Form.Control
+                className="auth-input"
+                type="text"
+                required
+                placeholder="John"
+                value={firstName}
+                onChange={(e) => setFirstName(e.target.value)}
+              />
+            </Form.Group>
+
+            {/* LAST NAME */}
+            <Form.Group className="mb-3">
+              <Form.Label className="auth-label">Last Name</Form.Label>
+              <Form.Control
+                className="auth-input"
+                type="text"
+                required
+                placeholder="Doe"
+                value={lastName}
+                onChange={(e) => setLastName(e.target.value)}
+              />
+            </Form.Group>
+
+            {/* EMAIL */}
             <Form.Group className="mb-3">
               <Form.Label className="auth-label">Email address</Form.Label>
               <Form.Control
@@ -78,6 +139,7 @@ const Signup = () => {
               />
             </Form.Group>
 
+            {/* PASSWORD */}
             <Form.Group className="mb-3">
               <Form.Label className="auth-label">Password (min 6 chars)</Form.Label>
               <Form.Control
@@ -91,6 +153,7 @@ const Signup = () => {
               />
             </Form.Group>
 
+            {/* CONFIRM PASSWORD */}
             <Form.Group className="mb-2">
               <Form.Label className="auth-label">Confirm password</Form.Label>
               <Form.Control
@@ -104,12 +167,7 @@ const Signup = () => {
             </Form.Group>
 
             <div className="auth-actions">
-              <Button
-                type="submit"
-                className="auth-btn"
-                disabled={loading}
-                variant="primary"
-              >
+              <Button type="submit" className="auth-btn" disabled={loading} variant="primary">
                 {loading ? <Spinner animation="border" size="sm" /> : "Sign Up"}
               </Button>
             </div>
