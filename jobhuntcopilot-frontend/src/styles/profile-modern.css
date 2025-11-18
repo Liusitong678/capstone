@@ -161,6 +161,7 @@
 
 .nav-tabs .nav-link.active {
   color: #4b5cff;
+  border-color: transparent !important;
   border-bottom: 3px solid #4b5cff !important;
 }
 
