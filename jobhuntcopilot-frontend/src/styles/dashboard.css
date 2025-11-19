@@ -5,17 +5,131 @@
   font-family: "Inter", "Segoe UI", sans-serif;
 }
 
-/* Toolbar */
 .rb-toolbar {
-  background: linear-gradient(90deg, #0d6efd, #1e60e0);
+  /* background: linear-gradient(90deg, #0e66eb 0%, #1150cc 40%, #1d47ba 100%); */
+  background: #173890;
   color: #fff;
-  padding: 0.7rem 0;
-  border-top: 1px solid #fff;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+  padding: 5rem 0 4.5rem; 
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+  position: relative; 
 }
 
+.rb-hero {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px;
+  gap: 0;
+}
+
+.rb-hero-left {
+  max-width: 800px;
+}
+
+.rb-hero-title {
+  font-size: 2.4rem;
+  font-weight: 800;
+  margin: 0 0 8px;
+}
+
+.rb-hero-subtitle {
+  margin: 0;
+  font-size: 0.98rem;
+  color: #e5e7eb;
+}
+
+
+.rb-search-shell {
+  position: absolute;
+  left: 5%;              
+  width: 100%;
+  max-width: 920px;
+
+  display: flex;
+  align-items: stretch;
+  background: #ffffff;
+  border-radius: 20px;
+  padding: 6px;
+  box-shadow: 0 18px 45px rgba(15, 23, 42, 0.35);
+  bottom: -50px;        
+}
+
+.rb-search-block {
+  display: flex;
+  align-items: center;
+  padding: 8px 16px;
+}
+
+.rb-search-keyword {
+  flex: 1;
+  min-width: 0;
+}
+
+.rb-search-icon {
+  font-size: 1.1rem;
+  margin-right: 10px;
+}
+
+.rb-search-texts {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  width: 100%;
+}
+
+.rb-search-label {
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: #6b7280;
+}
+
+.rb-search-input {
+  border: none !important;
+  padding: 0;
+  font-size: 0.96rem;
+  box-shadow: none !important;
+}
+
+.rb-search-input:focus {
+  outline: none;
+  box-shadow: none !important;
+}
+
+/* Search 按钮 */
+.rb-search-btn {
+  border-radius: 18px !important;
+  padding: 0 32px !important;
+  font-weight: 600 !important;
+  background: #e95668 !important;
+  border: none !important;
+  margin-left: 8px;
+  min-width: 130px;
+}
+
+.rb-search-btn:hover {
+  background: #e24458 !important;
+}
+
+.rb-hero-right {
+  flex: 0 0 230px;
+  display: flex;
+  justify-content: center;
+  margin-left: 0;
+}
+
+.rb-hero-illustration {
+  max-width: 260px;
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+
+
 .rb-content {
-  padding: 32px;
+  padding: 100px 32px 32px;
 }
 
 /* Filters Sidebar */
@@ -33,9 +147,6 @@
   color: #1a1a1a;
 }
 
-/* =============================
-   Job Card Styling
-============================= */
 
 .rb-card {
   background: #fff;
@@ -46,7 +157,7 @@
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  height: 340px; 
+  height: 340px;
   transition: all 0.25s ease;
 }
 
@@ -92,7 +203,6 @@
   margin-bottom: 0;
 }
 
-/* 卡片主体：技能标签、地点、薪资 */
 .rb-card-body {
   flex-grow: 1;
   display: flex;
@@ -107,7 +217,7 @@
   flex-wrap: wrap;
   gap: 6px;
   margin-bottom: 10px;
-  max-height: 70px; /* 限制最多显示两行标签 */
+  max-height: 70px;
   overflow: hidden;
 }
 
@@ -126,6 +236,7 @@
   color: #0d6efd;
   font-size: 0.9rem;
 }
+
 .rb-location {
   color: #666;
   font-size: 0.9rem;
@@ -183,8 +294,133 @@
   color: #dc3545;
 }
 
+.rb-save-btn {
+  border-radius: 999px;
+}
+.rb-save-btn.is-saved {
+  color: #ffc107;
+}
+.rb-save-btn.is-saved:hover {
+  filter: brightness(0.95);
+}
 
-.rb-save-btn { border-radius: 999px; }
-.rb-save-btn.is-saved { color: #ffc107; }         /* 金色 */
-.rb-save-btn.is-saved:hover { filter: brightness(0.95); }
+.floating-illustration {
+  position: absolute;
+  right: 10%;        
+  bottom: -50px;      
+  z-index: 5;
+}
 
+.rb-hero-illustration {
+  width: 230px;
+  height: auto;
+  max-width: 100%;
+  height: auto;
+  display: block;
+  transform: translateX(-20px); 
+}
+
+@media (min-width: 993px) and (max-width: 1200px) {
+  .rb-toolbar{
+    position: relative;
+  }
+  .rb-hero {
+    max-width: 820px !important;
+  }
+  .rb-search-shell {
+    position: absolute;
+    left: 50%;
+    max-width: 820px;
+    transform: translateX(-50%);
+  }
+  .floating-illustration {
+    position: static;
+    right: 0;
+    bottom: 0;
+    margin-top: 20px;
+    display: flex;
+    justify-content: center;
+   
+  }
+  .rb-hero-right {
+    flex: 0 0 230px;
+    display: flex;
+    justify-content: right;
+    margin-left: 0;
+  }
+
+  .rb-hero-illustration {
+    transform: none;
+    width: 130px;
+    height: 130px;
+    position: relative;
+    right: 0;
+
+  }
+}
+
+@media (min-width: 768px) and (max-width: 992px) {
+  .rb-search-shell {
+    position: absolute;
+    width: 90%;
+    height: 80px;
+    max-width: 100%;
+    margin-top: 16px;
+  }
+  .rb-search-btn {
+    min-width: 160px !important;
+    width: auto;
+  }
+  .floating-illustration {
+    display: none !important;
+  }
+}
+
+@media (max-width: 767px) {
+  .floating-illustration {
+    display: none !important;
+  }
+  .rb-toolbar {
+    padding: 50px 20px;
+  }
+  .rb-hero {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 24px;
+  }
+
+  .rb-hero-right {
+    align-self: center;
+    margin-left: 0;
+  }
+
+  .rb-hero-title {
+    font-size: 2rem;
+  }
+
+  .rb-search-shell {
+    position: absolute;
+    width: 90%;
+    height: 80px;
+    max-width: 100%;
+    margin-top: 16px;
+  }
+  .rb-search-icon{
+    display: none !important;
+  }
+  .rb-search-label {
+    font-size: 0.7rem !important;
+  }
+  .rb-search-input{
+    height: 100%;
+    width: 100%;
+    font-size: 0.8rem !important;
+    padding: 0.375rem 0 !important;
+  }
+
+  .rb-search-btn {
+    min-width: 100px !important;
+    width: auto;
+  }
+
+}
