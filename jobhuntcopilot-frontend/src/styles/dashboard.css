@@ -7,7 +7,7 @@
 
 .rb-toolbar {
   /* background: linear-gradient(90deg, #0e66eb 0%, #1150cc 40%, #1d47ba 100%); */
-  background: #173890;
+  background:#092d9a;
   color: #fff;
   padding: 5rem 0 4.5rem; 
   border-bottom: 1px solid rgba(255, 255, 255, 0.12);
@@ -97,7 +97,7 @@
   box-shadow: none !important;
 }
 
-/* Search 按钮 */
+/* Search button*/
 .rb-search-btn {
   border-radius: 18px !important;
   padding: 0 32px !important;
@@ -109,7 +109,7 @@
 }
 
 .rb-search-btn:hover {
-  background:#f99247 !important;
+  background: #f99247 !important;
 }
 
 .rb-hero-right {
@@ -126,10 +126,8 @@
   display: block;
 }
 
-
-
 .rb-content {
-  padding: 100px 32px 32px;
+  padding: 110px 32px 32px;
 }
 
 /* Filters Sidebar */
@@ -319,6 +317,18 @@
   display: block;
   transform: translateX(-20px); 
 }
+
+@media (min-width: 1200px) {
+  .rb-filters {
+    background: #fff;
+    border-radius: 16px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+    padding: 20px;
+    color: #333;
+    margin-top: 40px;
+  }
+}
+ 
 
 @media (min-width: 993px) and (max-width: 1200px) {
   .rb-toolbar{

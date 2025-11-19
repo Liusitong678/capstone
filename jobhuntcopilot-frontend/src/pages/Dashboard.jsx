@@ -1,4 +1,3 @@
-// src/pages/Dashboard.jsx
 import { useEffect, useMemo, useState } from "react";
 import {
   Container,
@@ -192,8 +191,6 @@ export default function Dashboard() {
               </Button>
             </div>
           </div>
-
-          {/* right image */}
           <div className="rb-hero-right floating-illustration">
             <img
               src={heroImg}
@@ -227,7 +224,7 @@ export default function Dashboard() {
               <div className="rb-blank">No jobs</div>
             )}
 
-            {!loading && !err && visibleJobs.length > 0 && (
+            {/* {!loading && !err && visibleJobs.length > 0 && (
               <Pager
                 page={clampedPage}
                 totalPages={totalPages}
@@ -237,7 +234,7 @@ export default function Dashboard() {
                 onPrev={() => setPage((p) => Math.max(1, p - 1))}
                 onNext={() => setPage((p) => Math.min(totalPages, p + 1))}
               />
-            )}
+            )} */}
 
             <Row xs={1} sm={2} lg={2} xl={3} xxl={3} className="rb-grid g-4">
               {pageItems.map((j) => (
