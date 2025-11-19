@@ -97,7 +97,7 @@
   box-shadow: none !important;
 }
 
-/* Search 按钮 */
+/* Search button*/
 .rb-search-btn {
   border-radius: 18px !important;
   padding: 0 32px !important;
@@ -109,7 +109,7 @@
 }
 
 .rb-search-btn:hover {
-  background: #e8843d !important;
+  background: #f99247 !important;
 }
 
 .rb-hero-right {
