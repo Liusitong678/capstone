@@ -318,7 +318,7 @@
   transform: translateX(-20px); 
 }
 
-@media (min-width: 1200px) {
+@media (min-width: 992px) {
   .rb-filters {
     background: #fff;
     border-radius: 16px;
