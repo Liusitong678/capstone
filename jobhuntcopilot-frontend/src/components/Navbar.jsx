@@ -1,122 +1,163 @@
 import React, { useContext } from "react";
-import { Navbar, Nav, Container, Button, Badge } from "react-bootstrap";
+import { Navbar, Nav, Container, Button, NavDropdown } from "react-bootstrap";
 import { NavLink, Link, useNavigate } from "react-router-dom";
-import "../styles/navbar.css";
+import { RiUser3Fill } from "react-icons/ri";
+
 import logo from "../assets/logo.svg";
 import { AuthContext } from "../firebase/AuthContext";
 import { logout } from "../firebase/logout";
-import PremiumBadge from "./PremiumBadge";
+import "../styles/navbar.css";
 
 const AppNavbar = () => {
   const navigate = useNavigate();
-  const { firebaseUser, role, loading } = useContext(AuthContext);
+  const { firebaseUser, role, loading, profile } = useContext(AuthContext);
 
   const handleLogout = async () => {
     await logout();
     navigate("/login");
   };
 
-  if (loading) return null; // prevent wrong UI flashing
+  if (loading) return null;
+
+  // Random greetings
+  const greetings = [
+    "Howdy",
+    "Welcome",
+    "Welcome back",
+    "Hi there",
+    "Greetings",
+    "Good to see you",
+    "Hello",
+    "Hey",
+    "Glad you're here"
+  ];
+
+  // Choose a greeting once
+  const randomGreeting = greetings[Math.floor(Math.random() * greetings.length)];
+
+  // Get user's first name
+  const firstName = profile?.firstName || firebaseUser?.displayName?.split(" ")[0] || "";
+
+  // Two-letter initials
+  const getInitials = () => {
+    if (profile?.firstName && profile?.lastName) {
+      return (profile.firstName[0] + profile.lastName[0]).toUpperCase();
+    }
+    if (firebaseUser?.displayName) {
+      const parts = firebaseUser.displayName.split(" ");
+      return parts.map(p => p[0]).join("").substring(0, 2).toUpperCase();
+    }
+    return "U";
+  };
 
 
   return (
-      <Navbar expand="lg" variant="dark" className="custom-navbar" sticky="top">
-        <Container fluid className="px-5">
+    <Navbar expand="lg" className="new-navbar" sticky="top">
+      <Container fluid className="px-4">
 
-          {/* Brand / Logo */}
-          <Navbar.Brand
+        {/* LEFT LOGO */}
+        <Navbar.Brand as={Link} to="/" className="d-flex align-items-center gap-2 brand-title">
+          <img src={logo} width="45" height="45" alt="Logo" />
+          <span>JobHuntCopilot</span>
+        </Navbar.Brand>
+
+        {/* MOBILE: AVATAR or CREATE BUTTON + TOGGLER */}
+        <div className="d-flex d-lg-none ms-auto align-items-center gap-2">
+
+          {/* Not logged in */}
+          {!firebaseUser && (
+            <Button
               as={Link}
-              to="/"
-              className="fw-bold fs-4 text-white d-flex align-items-center"
-          >
-            <img src={logo} width="50" className="me-2" alt="JobHuntCopilot Logo" />
-            JobHuntCopilot
+              to="/signup"
+              className="create-account-btn mobile-create-btn"
+            >
+               <RiUser3Fill /> SignUp
+            </Button>
+          )}
 
-          </Navbar.Brand>
-
-          {/* Mobile Toggler */}
-          <Navbar.Toggle aria-controls="main-navbar" />
-
-          <Navbar.Collapse id="main-navbar" className="justify-content-end">
-            <Nav className="align-items-center gap-4">
-
-              <NavLink
-                  to="/"
-                  end
-                  className={({ isActive }) => (isActive ? "nav-link active-link" : "nav-link")}
-              >
-                Home
-              </NavLink>
-
-              {firebaseUser && (
-                  <NavLink
-                      to="/profile"
-                      className={({ isActive }) => (isActive ? "nav-link active-link" : "nav-link")}
-                  >
-                    Profile
-                  </NavLink>
-              )}
-
-              <NavLink
-                  to="/about"
-                  className={({ isActive }) => (isActive ? "nav-link active-link" : "nav-link")}
-              >
-                About
-              </NavLink>
-
-              {/* SHOW UPGRADE LINK IF FREE USER */}
-              {firebaseUser && role === "free" && (
-                  <NavLink
-                      to="/upgrade"
-                      className={({ isActive }) =>
-                          isActive ? "nav-link active-link text-warning" : "nav-link text-warning"
-                      }
-                  >
-                    Upgrade
-                  </NavLink>
-              )}
-
-              {/* AUTH BUTTONS */}
-              {!firebaseUser && !loading && (
-                  <>
-                    <Button
-                        as={Link}
-                        to="/login"
-                        variant="outline-light"
-                        className="px-3 py-1"
-                    >
-                      Login
-                    </Button>
-                    <Button
-                        as={Link}
-                        to="/signup"
-                        variant="light"
-                        className="px-3 py-1 fw-semibold"
-                    >
-                      Sign Up
-                    </Button>
-                  </>
-              )}
-
-              {firebaseUser && (
-                  <Button
-                      variant="outline-light"
-                      className="px-3 py-1"
-                      onClick={handleLogout}
-                  >
-                    Logout
-                  </Button>
-              )}
-
-              {firebaseUser && (
-                <div className="d-flex align-items-center ms-3">
-                  <PremiumBadge role={role} />
+          {/* Logged in */}
+          {firebaseUser && (
+            <NavDropdown
+              align="end"
+              id="mobile-avatar-dropdown"
+              title={
+                <div className={`avatar-circle ${role}`}>
+                  {getInitials()}
+                  {role === "premium" && <span className="pro-badge">⭐</span>}
                 </div>
-              )}
-            </Nav>
-          </Navbar.Collapse>
-        </Container>
-      </Navbar>
+              }
+            >
+              <NavDropdown.Item as={Link} to="/profile">Profile</NavDropdown.Item>
+              <NavDropdown.Item onClick={handleLogout}>Logout</NavDropdown.Item>
+            </NavDropdown>
+          )}
+
+          {/* Hamburger menu */}
+          <Navbar.Toggle
+            aria-controls="main-navbar"
+            className="navbar-toggle-custom"
+          />
+        </div>
+
+
+        {/* CENTER NAV (Collapsible) */}
+        <Navbar.Collapse id="main-navbar">
+          <Nav className="mx-auto nav-center gap-4">
+            <NavLink to="/" end className="nav-item-link">Home</NavLink>
+            <NavLink to="/jobs" className="nav-item-link">Jobs</NavLink>
+            <NavLink to="/about" className="nav-item-link">About</NavLink>
+            <NavLink to="/contact" className="nav-item-link">Contact</NavLink>
+
+            {firebaseUser && role === "free" && (
+              <NavLink to="/upgrade" className="nav-item-link upgrade-link">
+                Upgrade ⭐
+              </NavLink>
+            )}
+          </Nav>
+        </Navbar.Collapse>
+
+        {/* RIGHT SIDE (DESKTOP) */}
+        <div className="d-none d-lg-flex align-items-center ms-auto me-3">
+
+          {/* Not logged in, Show Create Account */}
+          {!firebaseUser && (
+            <Button
+              as={Link}
+              to="/signup"
+              className="create-account-btn"
+            >
+              <RiUser3Fill /> Create Account
+            </Button>
+          )}
+
+          {/* Greeting text */}
+          {firebaseUser && (
+            <span className="user-greeting">
+              {randomGreeting} {firstName}!
+            </span>
+          )}
+
+          {/* Logged in, Show avatar dropdown */}
+          {firebaseUser && (
+            <NavDropdown
+              align="end"
+              id="desktop-avatar-dropdown"
+              title={
+                <div className={`avatar-circle ${role}`}>
+                  {getInitials()}
+                  {role === "premium" && <span className="pro-badge">⭐</span>}
+                </div>
+              }
+            >
+              <NavDropdown.Item as={Link} to="/profile">Profile</NavDropdown.Item>
+              <NavDropdown.Item onClick={handleLogout}>Logout</NavDropdown.Item>
+            </NavDropdown>
+          )}
+        </div>
+
+
+      </Container>
+    </Navbar>
   );
 };
 
