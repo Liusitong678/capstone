@@ -25,7 +25,7 @@ import { useAuth } from "../firebase/useAuth";
 
 export default function Dashboard() {
   const { firebaseUser, loading: authLoading } = useAuth();
-
+  const navigate = useNavigate();
   const [jobs, setJobs] = useState([]);
   const [filters, setFilters] = useState({});
   const [search, setSearch] = useState("");
@@ -237,6 +237,7 @@ export default function Dashboard() {
                 onNext={() => setPage((p) => Math.min(totalPages, p + 1))}
               />
             )} */}
+            
 
             <Row xs={1} sm={2} lg={2} xl={3} xxl={3} className="rb-grid g-4">
               {pageItems.map((j) => (
@@ -246,6 +247,8 @@ export default function Dashboard() {
                     saved={isSaved(j)}
                     onToggleSave={handleToggleSave}
                     onDetails={setSelected}
+                    onApply={(job) => navigate(`/job/${job._uid}`)}
+
                   />
                 </Col>
               ))}

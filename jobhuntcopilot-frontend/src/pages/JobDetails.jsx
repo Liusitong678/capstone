@@ -1,15 +1,21 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useContext } from "react";
 import { useParams } from "react-router-dom";
 import { Button, Container, Badge, Stack, Spinner, Modal } from "react-bootstrap";
 import { fetchJobById } from "../services/api";
+import { useAuth } from "../firebase/useAuth";
+import { AuthContext } from "../firebase/AuthContext";
+
 
 export default function JobDetails() {
+  const { firebaseUser } = useContext(AuthContext);
   const { id } = useParams();
   const [job, setJob] = useState(null);
   const [loading, setLoading] = useState(true);
   const [coverLoading, setCoverLoading] = useState(false);
   const [coverLetter, setCoverLetter] = useState("");  // store generated text
   const [showModal, setShowModal] = useState(false);  // modal visibility
+
+  const token = localStorage.getItem("token");
 
   useEffect(() => {
     (async () => {
@@ -30,9 +36,9 @@ export default function JobDetails() {
     try {
       setCoverLoading(true);
       
-      const res = await fetch("http://localhost:4000/api/ai/cover-letter", {
+      const res = await fetch("http://localhost:4000/api/ai/coverLetter", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${firebaseUser.accessToken}` },
         body: JSON.stringify({
           jobTitle: job.title,
           jobDescription: job.description
