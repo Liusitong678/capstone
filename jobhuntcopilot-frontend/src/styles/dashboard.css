@@ -102,14 +102,14 @@
   border-radius: 18px !important;
   padding: 0 32px !important;
   font-weight: 600 !important;
-  background: #e95668 !important;
+  background: #f99247 !important;
   border: none !important;
   margin-left: 8px;
-  min-width: 130px;
+  min-width: 220px;
 }
 
 .rb-search-btn:hover {
-  background: #e24458 !important;
+  background:#f99247 !important;
 }
 
 .rb-hero-right {
