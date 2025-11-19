@@ -75,11 +75,13 @@ function normalizeJob(j, idx = 0) {
 
 // AI Scoring + AI Cover Letter
 export const callScore = async (payload) => {
+  // Payload should be: { jobDescription, resumeUrl }
   return await api.post("/ai/score", payload);
 };
 
 export const createCoverLetter = async (payload) => {
-  return await api.post("/ai/cover-letter", payload);
+  // Payload should be: { jobTitle, jobDescription }
+  return await api.post("/ai/coverLetter", payload); 
 };
 
 // Jobs
