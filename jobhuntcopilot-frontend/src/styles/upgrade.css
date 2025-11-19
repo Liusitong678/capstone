@@ -1,0 +1,191 @@
+.upgrade-page {
+    min-height: 100vh;
+    background: linear-gradient(
+      180deg,
+      #0b5cff 0%,
+      #0b5cff 260px,
+      #f5f6fb 260px,
+      #f5f6fb 100%
+    );
+    padding: 96px 16px 40px;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .upgrade-hero {
+    max-width: 960px;
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: #ffffff;
+    margin-bottom: 20px;
+    gap: 16px;
+  }
+  
+  .hero-title {
+    font-size: 2.2rem;
+    font-weight: 700;
+    margin-bottom: 8px;
+  }
+  
+  .hero-subtitle {
+    font-size: 1rem;
+    opacity: 0.9;
+    max-width: 540px;
+  }
+  
+  .hero-badge {
+    padding: 8px 14px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.16);
+    border: 1px solid rgba(255, 255, 255, 0.45);
+    font-size: 0.9rem;
+    font-weight: 500;
+    backdrop-filter: blur(10px);
+  }
+  
+  .upgrade-card {
+    max-width: 960px;
+    width: 100%;
+    background-color: #ffffff;
+    border-radius: 16px;
+    box-shadow: 0 18px 40px rgba(15, 23, 42, 0.1);
+    padding: 24px 24px 28px;
+    box-sizing: border-box;
+  }
+  
+  /* Status row */
+  .status-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+  
+  .status-label {
+    font-size: 0.9rem;
+    color: #4b5563;
+  }
+  
+  .badge-free {
+    padding: 4px 10px;
+    border-radius: 999px;
+    background-color: #e5edff;
+    color: #1d4ed8;
+    font-size: 0.85rem;
+    font-weight: 600;
+  }
+  
+  .badge-pro {
+    padding: 4px 10px;
+    border-radius: 999px;
+    background-color: #dcfce7;
+    color: #15803d;
+    font-size: 0.85rem;
+    font-weight: 600;
+  }
+  
+  /* Text */
+  .upgrade-text {
+    font-size: 0.98rem;
+    color: #374151;
+    margin-bottom: 10px;
+  }
+  
+  /* List */
+  .upgrade-list {
+    padding-left: 20px;
+    margin-top: 4px;
+    margin-bottom: 18px;
+    color: #4b5563;
+    font-size: 0.95rem;
+    line-height: 1.6;
+  }
+  
+  /* ======= Pricing Box ======= */
+  .price-box {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    padding: 16px;
+    border-radius: 12px;
+    background-color: #f3f4ff;
+    margin-bottom: 14px;
+    flex-wrap: wrap;
+  }
+  
+  .price-label {
+    font-size: 0.9rem;
+    color: #4b5563;
+    margin-bottom: 4px;
+  }
+  
+  .price-value {
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: #0f172a;
+    margin-bottom: 2px;
+  }
+  
+  .price-period {
+    font-size: 0.95rem;
+    font-weight: 400;
+    color: #6b7280;
+  }
+  
+  .price-hint {
+    font-size: 0.85rem;
+    color: #6b7280;
+  }
+  
+  /* Buttons */
+  .upgrade-btn {
+    padding: 10px 20px;
+    border-radius: 999px;
+    border: none;
+    background: #ff914d;
+    color: #ffffff;
+    font-weight: 600;
+    cursor: pointer;
+    font-size: 0.98rem;
+    white-space: nowrap;
+  }
+  
+  .btn-disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+  }
+  
+  /* Error box */
+  .error-box {
+    background-color: #fee2e2;
+    color: #b91c1c;
+    padding: 8px 12px;
+    border-radius: 8px;
+    margin-bottom: 12px;
+    font-size: 0.9rem;
+  }
+  
+  /* Features area */
+  .features-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: 8px;
+  }
+  
+  .features-note {
+    font-size: 0.85rem;
+    color: #6b7280;
+    margin-top: 6px;
+  }
+  
+  .upgrade-note {
+    font-size: 0.85rem;
+    color: #6b7280;
+    margin-top: 6px;
+  }
+  
