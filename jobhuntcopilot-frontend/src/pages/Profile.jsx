@@ -1,5 +1,15 @@
 import { useEffect, useState, useMemo } from "react";
-import { Container, Card, Form, Button, Nav, Spinner, Row, Col } from "react-bootstrap";
+import {
+  Container,
+  Card,
+  Form,
+  Button,
+  Nav,
+  Spinner,
+  Row,
+  Col,
+  Modal,
+} from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../firebase/useAuth";
 import {
@@ -28,6 +38,11 @@ export default function Profile() {
 
   const [editFields, setEditFields] = useState({ firstName: "", lastName: "" });
 
+  // Pop up status
+  const [showSuccess, setShowSuccess] = useState(false);
+  const [showError, setShowError] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
+
   const savedCount = savedSet.size;
   const savedJobs = useMemo(
     () =>
@@ -40,8 +55,8 @@ export default function Profile() {
 
   /* ------------ LOAD AFTER AUTH IS READY ------------ */
   useEffect(() => {
-    if (authLoading) return;      // waiting for Firebase
-    if (!profile) return;        
+    if (authLoading) return; // waiting for Firebase
+    if (!profile) return;
 
     (async () => {
       try {
@@ -55,7 +70,7 @@ export default function Profile() {
         // get all of job lists
         const [jobsList, savedIds] = await Promise.all([
           fetchJobs(),
-          fetchSavedJobs(),       // return Set([...])
+          fetchSavedJobs(), // return Set([...])
         ]);
 
         const normalized = jobsList.map((j, i) => ({
@@ -73,10 +88,22 @@ export default function Profile() {
     })();
   }, [authLoading, profile]);
 
-  /* ------------ Upload Resume ------------ */
+  /* ------------ Upload Resume (PDF only + Modal 提示) ------------ */
   const handleResumeUpload = async (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
+
+    // PDF only
+    const isPdf =
+      file.type === "application/pdf" ||
+      file.name.toLowerCase().endsWith(".pdf");
+
+    if (!isPdf) {
+      setErrorMessage("Only PDF files are supported.");
+      setShowError(true);
+      e.target.value = "";
+      return;
+    }
 
     setUploading(true);
 
@@ -88,11 +115,18 @@ export default function Profile() {
         headers: { "Content-Type": "multipart/form-data" },
       });
 
-      const url = res.resumeUrl;
-      setResumeUrl(url);
+      const url = res.resumeUrl || res.data?.resumeUrl;
+      if (url) {
+        setResumeUrl(url);
+        setShowSuccess(true); // Upload successful pop-up window
+      } else {
+        setErrorMessage("Upload succeeded but no resume URL returned.");
+        setShowError(true);
+      }
     } catch (err) {
       console.error(err);
-      alert("Upload failed");
+      setErrorMessage("Upload failed.");
+      setShowError(true);
     } finally {
       setUploading(false);
     }
@@ -103,10 +137,11 @@ export default function Profile() {
     try {
       const updated = await updateUserProfile(editFields);
       console.log("Updated:", updated);
-      alert("Profile updated");
+      setShowSuccess(true);
     } catch (err) {
       console.error(err);
-      alert("Update failed");
+      setErrorMessage("Update failed.");
+      setShowError(true);
     }
   };
 
@@ -131,7 +166,8 @@ export default function Profile() {
     } catch (e) {
       console.error(e);
       setSavedSet(prev);
-      alert(e.message || "Failed to update saved job");
+      setErrorMessage(e.message || "Failed to update saved job.");
+      setShowError(true);
     }
   };
 
@@ -156,6 +192,30 @@ export default function Profile() {
   /* ------------ MAIN UI ------------ */
   return (
     <div className="profile-page-wrapper">
+      {/* SUCCESS MODAL */}
+      <Modal show={showSuccess} onHide={() => setShowSuccess(false)} centered>
+        <Modal.Header closeButton>
+          <Modal.Title>Success</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>Operation completed successfully.</Modal.Body>
+        <Modal.Footer>
+          <Button onClick={() => setShowSuccess(false)}>OK</Button>
+        </Modal.Footer>
+      </Modal>
+
+      {/* ERROR MODAL */}
+      <Modal show={showError} onHide={() => setShowError(false)} centered>
+        <Modal.Header closeButton>
+          <Modal.Title>Error</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>{errorMessage}</Modal.Body>
+        <Modal.Footer>
+          <Button variant="danger" onClick={() => setShowError(false)}>
+            Close
+          </Button>
+        </Modal.Footer>
+      </Modal>
+
       <Container className="profile-page-tabs">
         {/* LEFT CARD */}
         <Card className="side-profile-card">
@@ -257,10 +317,10 @@ export default function Profile() {
                 )}
 
                 <Form.Group className="mt-3">
-                  <Form.Label>Upload New Resume</Form.Label>
+                  <Form.Label>Upload New Resume (PDF format only)</Form.Label>
                   <Form.Control
                     type="file"
-                    accept=".pdf,.doc,.docx"
+                    accept=".pdf"
                     onChange={handleResumeUpload}
                   />
                   {uploading && <Spinner size="sm" className="mt-2" />}
