@@ -18,12 +18,14 @@ import JobCard from "../components/Jobcard";
 import FiltersSidebar from "../components/FiltersSidebar";
 import Pager from "../components/Pager";
 import "../styles/dashboard.css";
+import { useNavigate } from "react-router-dom";
+
 import "../styles/app-bg.css";
 import { useAuth } from "../firebase/useAuth";
 
 export default function Dashboard() {
   const { firebaseUser, loading: authLoading } = useAuth();
-
+  const navigate = useNavigate();
   const [jobs, setJobs] = useState([]);
   const [filters, setFilters] = useState({});
   const [search, setSearch] = useState("");
@@ -235,6 +237,7 @@ export default function Dashboard() {
                 onNext={() => setPage((p) => Math.min(totalPages, p + 1))}
               />
             )} */}
+            
 
             <Row xs={1} sm={2} lg={2} xl={3} xxl={3} className="rb-grid g-4">
               {pageItems.map((j) => (
@@ -244,6 +247,8 @@ export default function Dashboard() {
                     saved={isSaved(j)}
                     onToggleSave={handleToggleSave}
                     onDetails={setSelected}
+                    onApply={(job) => navigate(`/job/${job._uid}`)}
+
                   />
                 </Col>
               ))}
@@ -305,15 +310,16 @@ export default function Dashboard() {
         </Modal.Body>
         <Modal.Footer>
           {selected?.applyUrl && (
-            <Button
-              as="a"
-              href={selected.applyUrl}
-              target="_blank"
-              rel="noreferrer"
+            <Button   //change. nb
               variant="primary"
+              onClick={() => {
+                setSelected(null);
+                navigate(`/job/${selected._uid}`);
+              }}
             >
               Apply
             </Button>
+
           )}
           <Button variant="outline-secondary" onClick={() => setSelected(null)}>
             Close
