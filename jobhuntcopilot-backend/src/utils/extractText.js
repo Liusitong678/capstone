@@ -5,7 +5,7 @@ const pdfjsLib = require("pdfjs-dist/build/pdf.js");
 async function extractResumeText(url) {
   try {
     const response = await axios.get(url, {
-      responseType: "arraybuffer"
+      responseType: "arraybuffer",
     });
 
     const buffer = Buffer.from(response.data);
@@ -16,16 +16,19 @@ async function extractResumeText(url) {
     if (isPDF) {
       console.log("📄 Processing PDF using pdfjs-dist...");
 
-      const pdf = await pdfjsLib.getDocument({ data: buffer }).promise;
+      // Convert Buffer to Uint8Array
+      const uint8array = new Uint8Array(buffer);
+
+      const pdf = await pdfjsLib.getDocument({ data: uint8array }).promise;
       let text = "";
 
       for (let i = 1; i <= pdf.numPages; i++) {
         const page = await pdf.getPage(i);
         const content = await page.getTextContent();
-        text += content.items.map((item) => item.str).join(" ") + " ";
+        text += content.items.map(item => item.str).join(" ") + " ";
       }
 
-      return text;
+      return text.trim();
     }
 
     if (isDOCX) {
