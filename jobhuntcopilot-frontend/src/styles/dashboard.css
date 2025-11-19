@@ -126,10 +126,8 @@
   display: block;
 }
 
-
-
 .rb-content {
-  padding: 100px 32px 32px;
+  padding: 110px 32px 32px;
 }
 
 /* Filters Sidebar */
@@ -319,6 +317,18 @@
   display: block;
   transform: translateX(-20px); 
 }
+
+@media (min-width: 1200px) {
+  .rb-filters {
+    background: #fff;
+    border-radius: 16px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+    padding: 20px;
+    color: #333;
+    margin-top: 40px;
+  }
+}
+ 
 
 @media (min-width: 993px) and (max-width: 1200px) {
   .rb-toolbar{
