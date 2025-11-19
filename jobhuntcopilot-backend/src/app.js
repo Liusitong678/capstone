@@ -9,15 +9,22 @@ const app = express();
 // Core middleware
 app.use(express.json({ limit: "1mb" }));
 app.use(morgan("dev"));
-app.use(cors({ origin: process.env.CORS_ORIGIN || "http://localhost:5173" }));
+app.use(
+  cors({
+    origin: process.env.CORS_ORIGIN || "http://localhost:5173",
+    credentials: true,
+  })
+);
 
 // API routes
 app.use("/api", routes);
 
-// Health (simple)
-app.get("/", (req, res) => res.json({ ok: true, name: "JobHuntCopilot API" }));
+// Health check
+app.get("/", (req, res) =>
+  res.json({ ok: true, service: "JobHuntCopilot API" })
+);
 
-// Errors
+// Error handling
 app.use(notFound);
 app.use(errorHandler);
 

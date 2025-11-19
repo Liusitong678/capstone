@@ -1,4 +1,6 @@
 const express = require("express");
+const { scoreResume } = require("../controller/ai.controller");
+
 const router = express.Router();
 const axios = require("axios");
 const { OpenAI } = require("openai");
@@ -65,5 +67,7 @@ Keep it concise (around 200-250 words) and in a professional tone.
     res.status(500).json({ error: "Failed to generate cover letter" });
   }
 });
+
+router.post("/score", scoreResume);
 
 module.exports = router;

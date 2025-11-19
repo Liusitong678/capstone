@@ -1,89 +1,126 @@
-async function request(path, { method = 'GET', headers = {}, body, signal } = {}) {
-  const res = await fetch(path, {
-    method,
-    headers: { 'Accept': 'application/json', ...headers },
-    body,
-    signal,
-  });
+import axios from "axios";
+import { getAuth } from "firebase/auth";
 
-  if (!res.ok) {
-    const text = await res.text().catch(() => '');
-    throw new Error(`${method} ${path} ${res.status}: ${text || 'Request failed'}`);
+// Axios Instance
+const api = axios.create({
+  baseURL: "/api",     // Vite proxy → backend
+  headers: {
+    "Accept": "application/json",
+    "Content-Type": "application/json",
+  },
+});
+
+// Request Interceptor – Attach Firebase ID Token
+api.interceptors.request.use(
+  async (config) => {
+    const auth = getAuth();
+    const user = auth.currentUser;
+
+    if (user) {
+      const token = await user.getIdToken();
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+
+    return config;
+  },
+  (error) => Promise.reject(error)
+);
+
+// Response Interceptor – Normalize errors
+api.interceptors.response.use(
+  (response) => response.data,
+  (error) => {
+    const message =
+      error.response?.data?.message ||
+      error.message ||
+      "API request failed";
+    return Promise.reject(new Error(message));
   }
+);
 
-  // 204 No Content
-  if (res.status === 204) return null;
-
-  try {
-    return await res.json();
-  } catch {
-    return null;
-  }
-}
-
+// Helpers
 const fmtDate = (iso) => {
-  if (!iso) return '';
+  if (!iso) return "";
   try {
     const d = new Date(iso);
-    return d.toLocaleDateString('en-US', { day: '2-digit', month: 'short', year: 'numeric' });
+    return d.toLocaleDateString("en-US", {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+    });
   } catch {
-    return '';
+    return "";
   }
 };
 
 function normalizeJob(j, idx = 0) {
-  const href = j.url || j.applyUrl || ''; 
-  if (!j || typeof j !== 'object') return null;
+  const href = j.url || j.applyUrl || "";
+  if (!j || typeof j !== "object") return null;
+
   return {
     _uid: j._id || j.id || String(idx),
-    title: j.title || 'Untitled',
-    company: j.company || 'Unknown company',
-    description: j.description || '',
+    title: j.title || "Untitled",
+    company: j.company || "Unknown company",
+    description: j.description || "",
     skills: Array.isArray(j.skills) ? j.skills : [],
-    location: j.location || '',
-    // applyUrl: j.url || j.applyUrl || '',     // ★ use url instead of applyUrl
+    location: j.location || "",
     applyUrl: href,
     url: href,
-    source: j.source || '',                  // ★ from（JSearch/manual）
-    date: fmtDate(j.postedAt || j.date),     // ★ data
-    postedAt: j.postedAt || null,           
+    source: j.source || "",
+    date: fmtDate(j.postedAt || j.date),
+    postedAt: j.postedAt || null,
     raw: j,
   };
 }
 
-// ===== AI interface =====
-export async function callScore(payload, opts = {}) {
-  const data = await request('/api/ai/score', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(payload),
-    ...opts,
-  });
-  return data; // { score, matched, missing }
-}
+// AI Scoring + AI Cover Letter
+export const callScore = async (payload) => {
+  return await api.post("/ai/score", payload);
+};
 
-export async function createCoverLetter(payload, opts = {}) {
-  const data = await request('/api/ai/cover-letter', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(payload),
-    ...opts,
-  });
-  return data; // { text }
-}
+export const createCoverLetter = async (payload) => {
+  return await api.post("/ai/cover-letter", payload);
+};
 
-// ===== Jobs list =====
-export async function fetchJobs({ signal } = {}) {
-  const data = await request('/api/jobs', { method: 'GET', signal });
-  const list = Array.isArray(data) ? data : (data?.jobs || []);
+// Jobs
+export const fetchJobs = async () => {
+  const data = await api.get("/jobs");
+  const list = Array.isArray(data) ? data : data?.jobs || [];
   return list.map((j, idx) => normalizeJob(j, idx)).filter(Boolean);
-}
+};
 
-// ===== Job details =====
-export async function fetchJobById(id, { signal } = {}) {
-  const obj = await request(`/api/jobs/${id}`, { method: 'GET', signal });
+export const fetchJobById = async (id) => {
+  const obj = await api.get(`/jobs/${id}`);
   return normalizeJob(obj);
-}
+};
 
-  
-  
+// Resume
+export const fetchLatestResume = async () => {
+  return await api.get("/resume/latest");
+};
+
+// Saved Jobs
+export const fetchSavedJobs = async () => {
+  const data = await api.get("/saved-jobs");
+  return new Set(data || []);
+};
+
+export const saveJob = async (jobId) => {
+  return await api.post("/saved-jobs", { jobId });
+};
+
+export const unsaveJob = async (jobId) => {
+  return await api.delete(`/saved-jobs/${jobId}`);
+};
+
+// User Profile
+export const fetchMyProfile = async () => {
+  const res = await api.get("/users/me");
+  return res.user;
+};
+
+export const updateUserProfile = async (payload) => {
+  return await api.patch("/users/update", payload);
+};
+
+export default api;

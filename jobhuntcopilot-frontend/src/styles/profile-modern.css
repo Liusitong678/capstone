@@ -1,0 +1,213 @@
+/* Page Layout */
+.profile-page-wrapper {
+  min-height: calc(100vh - var(--nav-height));
+  padding-bottom: 1rem;
+}
+
+.profile-page-tabs {
+  display: flex;
+  gap: 30px;
+  margin-top: 40px;
+  padding: 0 15px;
+}
+
+/* Stack layout on tablets + mobile */
+@media (max-width: 992px) {
+  .profile-page-tabs {
+    flex-direction: column;
+    margin-top: 20px;
+  }
+}
+
+/* Left Profile Card */
+.side-profile-card {
+  width: 280px;
+  padding: 30px;
+  border-radius: 20px;
+  box-shadow: 0 8px 25px rgba(0,0,0,0.07);
+  text-align: center;
+  border: none;
+  background: #fff;
+}
+
+/* Full width left card on mobile */
+@media (max-width: 992px) {
+  .side-profile-card {
+    width: 100%;
+  }
+}
+
+/* Avatar */
+.side-avatar {
+  width: 90px;
+  height: 90px;
+  background: #5d7cfa;
+  color: #fff;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 40px;
+  font-weight: 600;
+  margin: 0 auto 15px;
+}
+
+/* Smaller avatar on small screens */
+@media (max-width: 576px) {
+  .side-avatar {
+    width: 70px;
+    height: 70px;
+    font-size: 32px;
+  }
+}
+
+/* Name + Email */
+.side-name {
+  font-weight: 700;
+  font-size: 1.3rem;
+}
+
+.side-email {
+  opacity: 0.7;
+  margin-bottom: 15px;
+}
+
+/* Role Badge */
+.role-badge {
+  margin: 12px auto 18px;
+  padding: 8px 16px;
+  border-radius: 40px;
+  font-weight: 600;
+  font-size: 0.9rem;
+  width: fit-content;
+}
+
+/* Badge Colors */
+.role-badge.free {
+  background: #f1f1f1;
+  color: #555;
+}
+
+.role-badge.premium {
+  background: linear-gradient(135deg, #7a5cff, #5d7cfa);
+  color: #fff;
+}
+
+.role-badge.admin {
+  background: #ff4d4d;
+  color: white;
+}
+
+/* Info Section */
+.info-list {
+  margin-top: 10px;
+  text-align: left;
+}
+
+.info-item {
+  padding: 10px 0;
+  border-bottom: 1px solid #f1f1f1;
+  display: flex;
+  justify-content: space-between;
+}
+
+.uid-truncate {
+  opacity: 0.8;
+  font-size: 0.8rem;
+}
+
+/* Upgrade Button */
+.upgrade-btn {
+  width: 100%;
+  margin-top: 20px;
+  border-radius: 12px;
+  background: #5d7cfa;
+  border: none;
+  font-weight: 600;
+  padding: 10px;
+}
+
+
+/* RIGHT CARD */
+.main-content-card {
+  flex: 1;
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 8px 25px rgba(0,0,0,0.07);
+  border: none;
+}
+
+/* Full width right card on mobile */
+@media (max-width: 992px) {
+  .main-content-card {
+    width: 100%;
+  }
+}
+
+/* Tabs */
+.nav-tabs {
+  overflow-x: auto;
+  white-space: nowrap;
+}
+
+.nav-tabs::-webkit-scrollbar {
+  display: none;
+}
+
+.nav-tabs .nav-link {
+  padding: 14px 20px;
+  font-weight: 600;
+}
+
+.nav-tabs .nav-link.active {
+  color: #4b5cff;
+  border-color: transparent !important;
+  border-bottom: 3px solid #4b5cff !important;
+}
+
+/* Content */
+.content-body {
+  padding: 30px;
+}
+
+.tab-content-box {
+  margin-top: 10px;
+}
+
+/* Form grid */
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 30px;
+}
+
+/* Single column on small screens */
+@media (max-width: 768px) {
+  .form-grid {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+}
+
+.update-btn {
+  margin-top: 25px;
+  border-radius: 12px;
+  background: #4b5cff;
+  border: none;
+  padding: 12px 22px;
+}
+
+/* Responsive iframe (Resume) */
+.resume-frame {
+  width: 100%;
+  height: 460px;
+  border-radius: 14px;
+  border: 1px solid #e5e5e5;
+  box-shadow: inset 0 0 8px rgba(0,0,0,0.05);
+}
+
+@media (max-width: 768px) {
+  .resume-frame {
+    height: 320px;
+  }
+}

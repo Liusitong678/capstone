@@ -1,126 +1,307 @@
 import { useEffect, useMemo, useState } from "react";
-import { Container, Row, Col, Form, InputGroup, Button, Modal, Badge, Stack } from "react-bootstrap";
-import { fetchJobs } from "../services/api";
+import {
+  Container,
+  Row,
+  Col,
+  Form,
+  Button,
+  Modal,
+  Badge,
+  Stack,
+  Spinner,
+} from "react-bootstrap";
+import { Link } from "react-router-dom";
+import bg from "../assets/bg-au.jpg";
+import heroImg from "../assets/hero-dashboard.png";
+import { fetchJobs, fetchSavedJobs, saveJob, unsaveJob } from "../services/api";
 import JobCard from "../components/Jobcard";
 import FiltersSidebar from "../components/FiltersSidebar";
+import Pager from "../components/Pager";
 import "../styles/dashboard.css";
 import { useNavigate } from "react-router-dom";
 
+import "../styles/app-bg.css";
+import { useAuth } from "../firebase/useAuth";
 
-export default function DashboardPro() {
+export default function Dashboard() {
+  const { firebaseUser, loading: authLoading } = useAuth();
+
   const [jobs, setJobs] = useState([]);
   const [filters, setFilters] = useState({});
   const [search, setSearch] = useState("");
-  const [salaryMin, setSalaryMin] = useState(0);
-  const [salaryMax, setSalaryMax] = useState(100);
   const [selected, setSelected] = useState(null);
   const [loading, setLoading] = useState(true);
   const [err, setErr] = useState("");
+  const [savedIds, setSavedIds] = useState(new Set());
+  const [page, setPage] = useState(1);
+  const PER_PAGE = 6;
 
-  const navigate = useNavigate();
-
-
+  // ==== 加载数据 ====
   useEffect(() => {
+    if (authLoading) return;
+    if (!firebaseUser) return;
+
     (async () => {
       try {
-        const list = await fetchJobs();                 // 从 /api/jobs 拿数据
-        // Lightweight specification: Ensure that each item has _uid
-        const normalized = list.map((j, i) => ({ ...j, _uid: j._uid || j._id || j.id || String(i) }));
-        setJobs(normalized);
+        const list = await fetchJobs();
+        setJobs(
+          list.map((j, i) => ({
+            ...j,
+            _uid: j._uid || j._id || j.id || String(i),
+          }))
+        );
+        setSavedIds(await fetchSavedJobs());
       } catch (e) {
         setErr(e.message || "Failed to load");
       } finally {
         setLoading(false);
       }
     })();
-  }, []);
+  }, [authLoading, firebaseUser]);
 
-  // 简单过滤（按标题/公司 & 伪 salary 范围：从字符串里抽数字）
+  // 搜索逻辑不动
   const visibleJobs = useMemo(() => {
     const q = search.trim().toLowerCase();
-    const toNum = (s) => {
-      if (!s) return NaN;
-      const m = String(s).match(/(\d+(\.\d+)?)/g);
-      return m ? Number(m[0]) : NaN;
-    };
-    return jobs.filter(j => {
-      const okQ = !q || [j.title, j.company].some(x => String(x || "").toLowerCase().includes(q));
-      const n = toNum(j.salary);
-      const okSalary = isNaN(n) ? true : (n >= salaryMin && n <= salaryMax);
-      return okQ && okSalary;
-    });
-  }, [jobs, search, salaryMin, salaryMax]);
+    if (!q) return jobs;
+    const hit = (v) => String(v || "").toLowerCase().includes(q);
 
+    return jobs.filter(
+      (j) =>
+        hit(j.title) ||
+        hit(j.company) ||
+        hit(j.location) ||
+        hit(j.source) ||
+        (Array.isArray(j.skills) && j.skills.some(hit))
+    );
+  }, [jobs, search]);
+
+  useEffect(() => setPage(1), [search]);
+
+  const totalPages = Math.max(1, Math.ceil(visibleJobs.length / PER_PAGE));
+  const clampedPage = Math.min(page, totalPages);
+  const start = (clampedPage - 1) * PER_PAGE;
+  const pageItems = visibleJobs.slice(start, start + PER_PAGE);
+
+  const isSaved = (job) => {
+    const id = job._id || job.id || job._uid;
+    return savedIds.has(id);
+  };
+
+  const handleToggleSave = async (job) => {
+    const id = job._id || job.id || job._uid;
+    if (!id) return;
+
+    const prev = new Set(savedIds);
+    const next = new Set(savedIds);
+    const already = next.has(id);
+
+    already ? next.delete(id) : next.add(id);
+    setSavedIds(next);
+
+    try {
+      if (already) await unsaveJob(id);
+      else await saveJob(id);
+    } catch (e) {
+      setSavedIds(prev);
+      alert(e.message || "Action failed");
+    }
+  };
+
+  // ===== 未登录 / 恢复 Session =====
+  if (authLoading) {
+    return (
+      <div className="rb-root">
+        <Container
+          className="py-5 d-flex justify-content-center align-items-center"
+          style={{ minHeight: "60vh" }}
+        >
+          <div className="text-muted text-center">
+            <Spinner animation="border" size="sm" className="me-2" />
+            Restoring your session…
+          </div>
+        </Container>
+      </div>
+    );
+  }
+
+  if (!firebaseUser) {
+    return (
+      <div className="app-bg" style={{ backgroundImage: `url(${bg})` }}>
+        <div className="app-content">
+          <Container
+            className="py-5 d-flex justify-content-center align-items-center"
+            style={{ minHeight: "60vh" }}
+          >
+            <div
+              className="bg-white shadow-sm rounded-4 p-4 p-md-5 text-center"
+              style={{ maxWidth: 460, width: "100%" }}
+            >
+              <h4 className="mb-2">Welcome to JobHunt Copilot</h4>
+              <p className="text-muted mb-4">
+                Sign in to discover recommended jobs, save roles, and track your
+                applications in one place.
+              </p>
+              <div className="d-flex justify-content-center gap-2">
+                <Button as={Link} to="/login" variant="primary">
+                  Login
+                </Button>
+                <Button as={Link} to="/signup" variant="outline-primary">
+                  Sign Up
+                </Button>
+              </div>
+            </div>
+          </Container>
+        </div>
+      </div>
+    );
+  }
+
+  // ===== 已登录主页面 =====
   return (
     <div className="rb-root">
-
-      {/* Secondary screening criteria */}
+      {/* 顶部深色 Hero 区域 */}
       <div className="rb-toolbar">
-        <Container fluid className="d-flex align-items-center gap-3">
-          <Button size="sm" variant="outline-light">Designer ▾</Button>
-          <Button size="sm" variant="outline-light">Work location ▾</Button>
-          <Button size="sm" variant="outline-light">Experience ▾</Button>
-          <Button size="sm" variant="outline-light">Per month ▾</Button>
+        <Container className="rb-hero">
+          <div className="rb-hero-left">
+            <h1 className="rb-hero-title">Find Your Dream Job</h1>
+            <p className="rb-hero-subtitle">
+              Discover tailored job matches, save your favorite roles, and let
+              JobHunt Copilot help you stay organized.
+            </p>
 
-          {/* <div className="ms-auto d-flex align-items-center gap-2">
-            <span className="text-white-50 small">Salary range</span>
-            <Form.Range min={0} max={100} value={salaryMin} onChange={(e)=>setSalaryMin(Number(e.target.value))}/>
-            <Form.Range min={0} max={100} value={salaryMax} onChange={(e)=>setSalaryMax(Number(e.target.value))}/>
-          </div> */}
+            {/* 搜索条 */}
+            <div className="rb-search-shell">
+              <div className="rb-search-block rb-search-keyword">
+                <span className="rb-search-icon">🔍</span>
+                <div className="rb-search-texts">
+                  <span className="rb-search-label">Job title or keyword</span>
+                  <Form.Control
+                    className="rb-search-input"
+                    placeholder="e.g. Front-End Developer"
+                    value={search}
+                    onChange={(e) => setSearch(e.target.value)}
+                  />
+                </div>
+              </div>
+
+              <Button
+                type="button"
+                className="rb-search-btn"
+                onClick={() => { }}
+              >
+                Search
+              </Button>
+            </div>
+          </div>
+          <div className="rb-hero-right floating-illustration">
+            <img
+              src={heroImg}
+              alt="Job hunter at laptop"
+              className="rb-hero-illustration"
+            />
+          </div>
+
         </Container>
       </div>
 
-      {/* content */}
+
+      {/* 列表内容区 */}
       <Container fluid className="rb-content">
         <Row className="g-4">
-          {/* Left side filter */}
           <Col xxl={2} lg={3}>
             <FiltersSidebar state={filters} setState={setFilters} />
           </Col>
 
-          {/* Right card grid*/}
           <Col xxl={10} lg={9}>
             <div className="d-flex justify-content-between align-items-center mb-2">
               <div className="rb-section-title">Recommended jobs</div>
-              <div className="text-muted small">Sort by: <strong>Last updated</strong></div>
+              <div className="text-muted small">
+                Sort by: <strong>Last updated</strong>
+              </div>
             </div>
 
             {loading && <div className="rb-blank">Loading…</div>}
             {err && <div className="rb-blank error">{err}</div>}
-            {!loading && !err && !visibleJobs.length && <div className="rb-blank">No jobs</div>}
+            {!loading && !err && visibleJobs.length === 0 && (
+              <div className="rb-blank">No jobs</div>
+            )}
+
+            {/* {!loading && !err && visibleJobs.length > 0 && (
+              <Pager
+                page={clampedPage}
+                totalPages={totalPages}
+                totalItems={visibleJobs.length}
+                start={start}
+                end={start + pageItems.length}
+                onPrev={() => setPage((p) => Math.max(1, p - 1))}
+                onNext={() => setPage((p) => Math.min(totalPages, p + 1))}
+              />
+            )} */}
 
             <Row xs={1} sm={2} lg={2} xl={3} xxl={3} className="rb-grid g-4">
-              {visibleJobs.map(j => (
+              {pageItems.map((j) => (
                 <Col key={j._uid}>
-                  <JobCard //change. nb
+                  <JobCard
                     job={j}
+                    saved={isSaved(j)}
+                    onToggleSave={handleToggleSave}
                     onDetails={setSelected}
-                    onApply={(job) => navigate(`/job/${job._uid}`)}  
                   />
                 </Col>
               ))}
             </Row>
+
+            {!loading && !err && visibleJobs.length > 0 && (
+              <Pager
+                page={clampedPage}
+                totalPages={totalPages}
+                totalItems={visibleJobs.length}
+                start={start}
+                end={start + pageItems.length}
+                onPrev={() => setPage((p) => Math.max(1, p - 1))}
+                onNext={() => setPage((p) => Math.min(totalPages, p + 1))}
+              />
+            )}
           </Col>
         </Row>
       </Container>
 
-      {/* details Modal（click Details） */}
+      {/* 详情弹窗 */}
       <Modal show={!!selected} onHide={() => setSelected(null)} centered size="lg">
         <Modal.Header closeButton>
           <Modal.Title>
-            {selected?.title}{" "}
-            {selected?.company && <Badge bg="secondary" className="ms-2">{selected.company}</Badge>}
+            {selected?.title}
+            {selected?.company && (
+              <Badge bg="secondary" className="ms-2">
+                {selected.company}
+              </Badge>
+            )}
           </Modal.Title>
         </Modal.Header>
         <Modal.Body>
           {selected && (
             <>
               <Stack direction="horizontal" gap={2} className="flex-wrap mb-3">
-                {selected.location && <Badge bg="light" text="dark">{selected.location}</Badge>}
-                {selected.level && <Badge bg="light" text="dark">{selected.level}</Badge>}
-                {Array.isArray(selected.skills) && selected.skills.map((s, i) => <Badge key={i} bg="light" text="dark">{s}</Badge>)}
+                {selected.location && (
+                  <Badge bg="light" text="dark">
+                    {selected.location}
+                  </Badge>
+                )}
+                {selected.level && (
+                  <Badge bg="light" text="dark">
+                    {selected.level}
+                  </Badge>
+                )}
+                {Array.isArray(selected.skills) &&
+                  selected.skills.map((s, i) => (
+                    <Badge key={i} bg="light" text="dark">
+                      {s}
+                    </Badge>
+                  ))}
               </Stack>
-              {selected.description && (<p style={{ whiteSpace: "pre-wrap" }}>{selected.description}</p>)}
+              {selected.description && (
+                <p style={{ whiteSpace: "pre-wrap" }}>{selected.description}</p>
+              )}
             </>
           )}
         </Modal.Body>
@@ -137,7 +318,9 @@ export default function DashboardPro() {
             </Button>
 
           )}
-          <Button variant="outline-secondary" onClick={() => setSelected(null)}>Close</Button>
+          <Button variant="outline-secondary" onClick={() => setSelected(null)}>
+            Close
+          </Button>
         </Modal.Footer>
       </Modal>
     </div>

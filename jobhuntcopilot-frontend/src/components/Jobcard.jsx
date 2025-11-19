@@ -2,11 +2,10 @@ import { Card, Badge, Button } from "react-bootstrap";
 
 const SOFT_BG = ["#FFE7D3", "#DDF7EC", "#E8F0FF", "#F7E8FF", "#FFF4E8"];
 
-function hashCode(str = "") {
+function hashString(str) {
   let hash = 0;
   for (let i = 0; i < str.length; i++) {
     hash = (hash << 5) - hash + str.charCodeAt(i);
-    hash |= 0; // Convert to 32-bit integer
   }
   return Math.abs(hash);
 }
@@ -15,7 +14,8 @@ function Chip({ children }) {
   return <span className="rb-chip">{children}</span>;
 }
 
-export default function JobCard({ job, onDetails, onApply }) {
+
+export default function JobCard({ job, onDetails, onApply, saved = false, onToggleSave }) {
   const {
     title = "Untitled role",
     company = "Unknown",
@@ -30,66 +30,48 @@ export default function JobCard({ job, onDetails, onApply }) {
     source,
   } = job;
 
-  // 外链安全兜底（允许后端返回不带协议的链接）
   const rawHref = applyUrl || url || "";
-  const safeHref = rawHref
-    ? /^https?:\/\//i.test(rawHref)
-      ? rawHref
-      : `https://${rawHref}`
-    : "";
+  const safeHref = rawHref ? (/^https?:\/\//i.test(rawHref) ? rawHref : `https://${rawHref}`) : "";
 
-  // Generate stable color index based on "company+title"
-  const colorKey = `${company}::${title}`;
-  const colorIdx = hashCode(colorKey) % SOFT_BG.length;
-  const innerBg = SOFT_BG[colorIdx];
+  // different color
+  const key = job._uid || job.id || job.title || "x";
+  const bg = SOFT_BG[hashString(key) % SOFT_BG.length];
 
   return (
     <Card className="rb-card">
-      {/* inner */}
-      <div className="rb-card-inner" style={{ background: innerBg }}>
-        <div className="rb-card-head">
-          {date ? (
-            <Badge bg="light" text="dark" className="rb-date">
-              {date}
-            </Badge>
-          ) : (
-            <span />
-          )}
-          <div className="d-flex gap-2 align-items-center">
-            {source && (
-              <Badge bg="light" text="dark" title="Source">
-                {source}
-              </Badge>
-            )}
-            <Button
-              size="sm"
-              variant="light"
-              className="rb-icon-btn"
-              title="Save"
-              aria-label="Save job"
-            >
-              ♡
-            </Button>
-          </div>
-        </div>
+      {/* Top bar */}
+      <div className="rb-card-head">
+        {date ? <Badge bg="light" text="dark" className="rb-date">{date}</Badge> : <span />}
+        <div className="d-flex gap-2 align-items-center">
+          {source && <Badge bg="light" text="dark">{source}</Badge>}
 
+          {/* Favorite button */}
+          <Button
+            size="sm"
+            variant="light"
+            className={`rb-icon-btn rb-save-btn ${saved ? "is-saved" : ""}`}
+            title={saved ? "Unsave" : "Save"}
+            onClick={(e) => { e.stopPropagation(); onToggleSave?.(job); }}
+          >
+            {saved ? "★" : "☆"}
+          </Button>
+        </div>
+      </div>
+
+      {/* 内层颜色块（随机柔色） */}
+      <div className="rb-card-inner" style={{ background: bg }}>
         <div className="rb-company">{company}</div>
         <h3 className="rb-title">{title}</h3>
 
-        {/* mian content */}
         <div className="rb-card-body">
-          {/* skills */}
           {(schedule || level || skills.length > 0) && (
             <div className="rb-chips">
               {schedule && <Chip>{schedule}</Chip>}
               {level && <Chip>{level}</Chip>}
-              {skills.slice(0, 6).map((s, i) => (
-                <Chip key={i}>{s}</Chip>
-              ))}
+              {skills.slice(0, 6).map((s, i) => <Chip key={i}>{s}</Chip>)}
             </div>
           )}
 
-          {/* Salary/Position */}
           {(salary || location) && (
             <div>
               {salary && <div className="rb-salary">{salary}</div>}
@@ -99,7 +81,7 @@ export default function JobCard({ job, onDetails, onApply }) {
         </div>
       </div>
 
-      {/* buttons */}
+      {/* bottom area */}
       <div className="rb-card-footer">
         {safeHref ? (
         <Button   //change. nb

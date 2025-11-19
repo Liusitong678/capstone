@@ -1,114 +1,308 @@
-import React from "react";
-import { Container, Row, Col, Card } from "react-bootstrap";
+import { useEffect, useState, useMemo } from "react";
+import { Container, Card, Form, Button, Nav, Spinner, Row, Col } from "react-bootstrap";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../firebase/useAuth";
+import {
+  updateUserProfile,
+  fetchSavedJobs,
+  fetchJobs,
+  saveJob,
+  unsaveJob,
+} from "../services/api";
+import api from "../services/api";
+import ResumeViewer from "../components/ResumeViewer";
+import JobCard from "../components/Jobcard";
+import "../styles/profile-modern.css";
 
-const About = () => {
+export default function Profile() {
+  const navigate = useNavigate();
+  const { firebaseUser, loading: authLoading, profile } = useAuth();
+
+  const [pageLoading, setPageLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState("account");
+  const [resumeUrl, setResumeUrl] = useState("");
+  const [uploading, setUploading] = useState(false);
+
+  const [allJobs, setAllJobs] = useState([]);
+  const [savedSet, setSavedSet] = useState(new Set());
+
+  const [editFields, setEditFields] = useState({ firstName: "", lastName: "" });
+
+  const savedCount = savedSet.size;
+  const savedJobs = useMemo(
+    () =>
+      allJobs.filter((j) => {
+        const id = j._id || j.id || j._uid;
+        return savedSet.has(id);
+      }),
+    [allJobs, savedSet]
+  );
+
+  /* ------------ LOAD AFTER AUTH IS READY ------------ */
+  useEffect(() => {
+    if (authLoading) return;      // waiting for Firebase
+    if (!profile) return;        
+
+    (async () => {
+      try {
+        setResumeUrl(profile.resumeUrl || "");
+
+        setEditFields({
+          firstName: profile.firstName || "",
+          lastName: profile.lastName || "",
+        });
+
+        // get all of job lists
+        const [jobsList, savedIds] = await Promise.all([
+          fetchJobs(),
+          fetchSavedJobs(),       // return Set([...])
+        ]);
+
+        const normalized = jobsList.map((j, i) => ({
+          ...j,
+          _uid: j._uid || j._id || j.id || String(i),
+        }));
+
+        setAllJobs(normalized);
+        setSavedSet(savedIds);
+      } catch (e) {
+        console.error("Profile init failed:", e);
+      } finally {
+        setPageLoading(false);
+      }
+    })();
+  }, [authLoading, profile]);
+
+  /* ------------ Upload Resume ------------ */
+  const handleResumeUpload = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setUploading(true);
+
+    try {
+      const formData = new FormData();
+      formData.append("resume", file);
+
+      const res = await api.post("/resume/upload", formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+
+      const url = res.resumeUrl;
+      setResumeUrl(url);
+    } catch (err) {
+      console.error(err);
+      alert("Upload failed");
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  /* ------------ Update Profile ------------ */
+  const saveProfile = async () => {
+    try {
+      const updated = await updateUserProfile(editFields);
+      console.log("Updated:", updated);
+      alert("Profile updated");
+    } catch (err) {
+      console.error(err);
+      alert("Update failed");
+    }
+  };
+
+  /* ------------ Toggle Save / Unsave ------------ */
+  const handleToggleSave = async (job) => {
+    const id = job._id || job.id || job._uid;
+    if (!id) return;
+
+    const prev = new Set(savedSet);
+    const next = new Set(savedSet);
+    const already = next.has(id);
+
+    already ? next.delete(id) : next.add(id);
+    setSavedSet(next);
+
+    try {
+      if (already) {
+        await unsaveJob(id);
+      } else {
+        await saveJob(id);
+      }
+    } catch (e) {
+      console.error(e);
+      setSavedSet(prev);
+      alert(e.message || "Failed to update saved job");
+    }
+  };
+
+  /* ------------ Loading Screen ------------ */
+  if (authLoading || pageLoading) {
+    return (
+      <div className="profile-loading">
+        <Spinner animation="border" />
+      </div>
+    );
+  }
+
+  if (!firebaseUser) {
+    return (
+      <div className="profile-loading">
+        <p>Please login to view your profile.</p>
+        <Button onClick={() => navigate("/login")}>Go to Login</Button>
+      </div>
+    );
+  }
+
+  /* ------------ MAIN UI ------------ */
   return (
-    <div className="py-5 bg-light">
-      <Container>
-        {/* Header Section */}
-        <Row className="justify-content-center mb-4">
-          <Col lg={8} className="text-center">
-            <h1 className="fw-bold mb-3 text-primary">About JobHuntCopilot</h1>
-            <p className="lead text-muted">
-              JobHuntCopilot is an AI-powered job assistance platform designed
-              to help candidates discover relevant opportunities, analyze
-              resume–job compatibility, and generate personalized cover letters
-              — all in one streamlined experience.
-            </p>
-          </Col>
-        </Row>
+    <div className="profile-page-wrapper">
+      <Container className="profile-page-tabs">
+        {/* LEFT CARD */}
+        <Card className="side-profile-card">
+          <div className="side-avatar">
+            {(profile.firstName || "U")[0].toUpperCase()}
+          </div>
 
-        {/* Mission Section */}
-        <Row className="align-items-center mb-5">
-          <Col lg={6}>
-            <img
-              src="https://cdn-icons-png.flaticon.com/512/4359/4359716.png"
-              alt="AI-powered job assistant illustration"
-              className="img-fluid rounded-3 shadow-sm"
-            />
-          </Col>
-          <Col lg={6}>
-            <h3 className="fw-semibold text-secondary mb-3">Our Mission</h3>
-            <p className="text-muted">
-              Our mission is to simplify and enhance the job search process by
-              combining automation, data-driven analysis, and AI intelligence.
-              Whether you are a student, professional, or recruiter, JobHuntCopilot
-              aims to reduce the time spent on manual research and help you make
-              smarter career moves.
-            </p>
-          </Col>
-        </Row>
+          <h4 className="side-name">
+            {profile.firstName} {profile.lastName}
+          </h4>
+          <p className="side-email">{profile.email}</p>
 
-        {/* Technology Stack */}
-        <Row className="justify-content-center mb-5">
-          <Col lg={8} className="text-center">
-            <h3 className="fw-semibold text-secondary mb-3">
-              Powered by Modern Technology
-            </h3>
-            <p className="text-muted">
-              JobHuntCopilot is built using a full-stack JavaScript ecosystem:
-            </p>
-            <ul className="list-inline">
-              <li className="list-inline-item mx-2 badge bg-primary">
-                React + Vite
-              </li>
-              <li className="list-inline-item mx-2 badge bg-success">
-                Node.js + Express
-              </li>
-              <li className="list-inline-item mx-2 badge bg-info text-dark">
-                MongoDB Atlas
-              </li>
-              <li className="list-inline-item mx-2 badge bg-warning text-dark">
-                OpenAI API
-              </li>
-              <li className="list-inline-item mx-2 badge bg-dark">
-                n8n Automation
-              </li>
-            </ul>
-          </Col>
-        </Row>
+          <div className={`role-badge ${profile.role}`}>
+            {profile.role === "admin" && "🛡️ Admin"}
+            {profile.role === "premium" && "⭐ Premium"}
+            {profile.role === "free" && "🆓 Free User"}
+          </div>
 
-        {/* Team Section */}
-        <Row className="justify-content-center">
-          <Col lg={8} className="text-center">
-            <h3 className="fw-semibold text-secondary mb-3">Meet the Team</h3>
-          </Col>
-        </Row>
-        <Row className="justify-content-center text-center">
-          {[
-            { name: "Riwaj Shrestha", role: "Backend Lead" },
-            { name: "Sitong Liu", role: "Backend Integration & AI" },
-            { name: "Aswathy Chandran Kala", role: "Frontend Lead" },
-            { name: "Niravkumar Rajeshbhai Bavadiya", role: "Frontend Support" },
-          ].map((member, index) => (
-            <Col key={index} lg={3} md={6} className="mb-4">
-              <Card className="border-0 shadow-sm">
-                <Card.Body>
-                  <div
-                    className="bg-primary bg-gradient text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-3"
-                    style={{ width: "60px", height: "60px", fontSize: "1.5rem" }}
+          <div className="info-list">
+            <div className="info-item">
+              <span>Member Since</span>
+              <strong>
+                {profile.createdAt
+                  ? new Date(profile.createdAt).toLocaleDateString()
+                  : "-"}
+              </strong>
+            </div>
+
+            <div className="info-item" onClick={() => setActiveTab("saved")}>
+              <span>Saved Jobs</span>
+              <strong style={{ cursor: "pointer" }}>{savedCount}</strong>
+            </div>
+          </div>
+
+          {profile.role === "free" && (
+            <Button className="upgrade-btn">Upgrade to Premium ⭐</Button>
+          )}
+        </Card>
+
+        {/* RIGHT CARD */}
+        <Card className="main-content-card">
+          <Nav variant="tabs" activeKey={activeTab} onSelect={setActiveTab}>
+            <Nav.Item>
+              <Nav.Link eventKey="account">Account Details</Nav.Link>
+            </Nav.Item>
+            <Nav.Item>
+              <Nav.Link eventKey="resume">Resume</Nav.Link>
+            </Nav.Item>
+            <Nav.Item>
+              <Nav.Link eventKey="saved">Saved Jobs</Nav.Link>
+            </Nav.Item>
+          </Nav>
+
+          <div className="content-body">
+            {/* ACCOUNT TAB */}
+            {activeTab === "account" && (
+              <div className="tab-content-box">
+                <div className="form-grid">
+                  <Form.Group>
+                    <Form.Label>First Name</Form.Label>
+                    <Form.Control
+                      value={editFields.firstName}
+                      onChange={(e) =>
+                        setEditFields({
+                          ...editFields,
+                          firstName: e.target.value,
+                        })
+                      }
+                    />
+                  </Form.Group>
+
+                  <Form.Group>
+                    <Form.Label>Last Name</Form.Label>
+                    <Form.Control
+                      value={editFields.lastName}
+                      onChange={(e) =>
+                        setEditFields({
+                          ...editFields,
+                          lastName: e.target.value,
+                        })
+                      }
+                    />
+                  </Form.Group>
+                </div>
+
+                <Button className="update-btn" onClick={saveProfile}>
+                  Update
+                </Button>
+              </div>
+            )}
+
+            {/* RESUME TAB */}
+            {activeTab === "resume" && (
+              <div className="tab-content-box">
+                {resumeUrl ? (
+                  <ResumeViewer url={resumeUrl} />
+                ) : (
+                  <p>No resume uploaded.</p>
+                )}
+
+                <Form.Group className="mt-3">
+                  <Form.Label>Upload New Resume</Form.Label>
+                  <Form.Control
+                    type="file"
+                    accept=".pdf,.doc,.docx"
+                    onChange={handleResumeUpload}
+                  />
+                  {uploading && <Spinner size="sm" className="mt-2" />}
+                </Form.Group>
+              </div>
+            )}
+
+            {/* SAVED JOBS TAB – use JobCard component */}
+            {activeTab === "saved" && (
+              <div className="tab-content-box">
+                {savedJobs.length === 0 ? (
+                  <p>No saved jobs yet.</p>
+                ) : (
+                  <Row
+                    xs={1}
+                    sm={2}
+                    lg={2}
+                    xl={3}
+                    xxl={3}
+                    className="rb-grid g-4"
                   >
-                    {member.name.charAt(0)}
-                  </div>
-                  <Card.Title className="mb-1">{member.name}</Card.Title>
-                  <Card.Text className="text-muted small">{member.role}</Card.Text>
-                </Card.Body>
-              </Card>
-            </Col>
-          ))}
-        </Row>
-
-        {/* Footer Section */}
-        <Row className="mt-5">
-          <Col className="text-center text-muted small">
-            <p>
-              © {new Date().getFullYear()} JobHuntCopilot | Built for Conestoga College Capstone Project
-            </p>
-          </Col>
-        </Row>
+                    {savedJobs.map((j) => {
+                      const id = j._id || j.id || j._uid;
+                      return (
+                        <Col key={id}>
+                          <JobCard
+                            job={j}
+                            saved={savedSet.has(id)}
+                            onToggleSave={handleToggleSave}
+                            // Profile 里先不做详情弹窗，传一个空函数避免报错
+                            onDetails={() => {}}
+                          />
+                        </Col>
+                      );
+                    })}
+                  </Row>
+                )}
+              </div>
+            )}
+          </div>
+        </Card>
       </Container>
     </div>
   );
-};
-
-export default About;
+}
