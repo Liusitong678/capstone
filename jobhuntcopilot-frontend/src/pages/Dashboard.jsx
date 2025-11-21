@@ -10,22 +10,20 @@ import {
   Stack,
   Spinner,
 } from "react-bootstrap";
-import { Link } from "react-router-dom";
-import bg from "../assets/bg-au.jpg";
+import { useNavigate } from "react-router-dom";
 import heroImg from "../assets/hero-dashboard.png";
 import { fetchJobs, fetchSavedJobs, saveJob, unsaveJob } from "../services/api";
 import JobCard from "../components/Jobcard";
 import FiltersSidebar from "../components/FiltersSidebar";
 import Pager from "../components/Pager";
 import "../styles/dashboard.css";
-import { useNavigate } from "react-router-dom";
-
-import "../styles/app-bg.css";
 import { useAuth } from "../firebase/useAuth";
+import GuestLanding from "./Home";   
 
 export default function Dashboard() {
   const { firebaseUser, loading: authLoading } = useAuth();
   const navigate = useNavigate();
+
   const [jobs, setJobs] = useState([]);
   const [filters, setFilters] = useState({});
   const [search, setSearch] = useState("");
@@ -43,13 +41,30 @@ export default function Dashboard() {
 
     (async () => {
       try {
+        // const list = await fetchJobs();
+        // setJobs(
+        //   list.map((j, i) => ({
+        //     ...j,
+        //     _uid: j._uid || j._id || j.id || String(i),
+        //   }))
+        // );
         const list = await fetchJobs();
+
+        // ⭐ 按岗位发布时间排序：最新在最前
+        list.sort((a, b) => {
+          // 处理不存在 date 的情况
+          const da = new Date(a.date || a.updatedAt || a.createdAt || 0);
+          const db = new Date(b.date || b.updatedAt || b.createdAt || 0);
+          return db - da; // 降序：最新在前
+        });
+
         setJobs(
           list.map((j, i) => ({
             ...j,
             _uid: j._uid || j._id || j.id || String(i),
           }))
         );
+
         setSavedIds(await fetchSavedJobs());
       } catch (e) {
         setErr(e.message || "Failed to load");
@@ -124,36 +139,9 @@ export default function Dashboard() {
     );
   }
 
+  // ⭐ 抽离后的未登录页面
   if (!firebaseUser) {
-    return (
-      <div className="app-bg" style={{ backgroundImage: `url(${bg})` }}>
-        <div className="app-content">
-          <Container
-            className="py-5 d-flex justify-content-center align-items-center"
-            style={{ minHeight: "60vh" }}
-          >
-            <div
-              className="bg-white shadow-sm rounded-4 p-4 p-md-5 text-center"
-              style={{ maxWidth: 460, width: "100%" }}
-            >
-              <h4 className="mb-2">Welcome to JobHunt Copilot</h4>
-              <p className="text-muted mb-4">
-                Sign in to discover recommended jobs, save roles, and track your
-                applications in one place.
-              </p>
-              <div className="d-flex justify-content-center gap-2">
-                <Button as={Link} to="/login" variant="primary">
-                  Login
-                </Button>
-                <Button as={Link} to="/signup" variant="outline-primary">
-                  Sign Up
-                </Button>
-              </div>
-            </div>
-          </Container>
-        </div>
-      </div>
-    );
+    return <GuestLanding />;
   }
 
   // ===== 已登录主页面 =====
@@ -187,12 +175,14 @@ export default function Dashboard() {
               <Button
                 type="button"
                 className="rb-search-btn"
-                onClick={() => { }}
+                onClick={() => {}}
               >
                 Search
               </Button>
             </div>
           </div>
+
+          {/* 右侧插画（保持你现在的浮动样式） */}
           <div className="rb-hero-right floating-illustration">
             <img
               src={heroImg}
@@ -200,10 +190,8 @@ export default function Dashboard() {
               className="rb-hero-illustration"
             />
           </div>
-
         </Container>
       </div>
-
 
       {/* 列表内容区 */}
       <Container fluid className="rb-content">
@@ -226,7 +214,7 @@ export default function Dashboard() {
               <div className="rb-blank">No jobs</div>
             )}
 
-            {/* {!loading && !err && visibleJobs.length > 0 && (
+            {!loading && !err && visibleJobs.length > 0 && (
               <Pager
                 page={clampedPage}
                 totalPages={totalPages}
@@ -236,8 +224,7 @@ export default function Dashboard() {
                 onPrev={() => setPage((p) => Math.max(1, p - 1))}
                 onNext={() => setPage((p) => Math.min(totalPages, p + 1))}
               />
-            )} */}
-            
+            )}
 
             <Row xs={1} sm={2} lg={2} xl={3} xxl={3} className="rb-grid g-4">
               {pageItems.map((j) => (
@@ -248,7 +235,6 @@ export default function Dashboard() {
                     onToggleSave={handleToggleSave}
                     onDetails={setSelected}
                     onApply={(job) => navigate(`/job/${job._uid}`)}
-
                   />
                 </Col>
               ))}
@@ -270,7 +256,12 @@ export default function Dashboard() {
       </Container>
 
       {/* 详情弹窗 */}
-      <Modal show={!!selected} onHide={() => setSelected(null)} centered size="lg">
+      <Modal
+        show={!!selected}
+        onHide={() => setSelected(null)}
+        centered
+        size="lg"
+      >
         <Modal.Header closeButton>
           <Modal.Title>
             {selected?.title}
@@ -310,7 +301,7 @@ export default function Dashboard() {
         </Modal.Body>
         <Modal.Footer>
           {selected?.applyUrl && (
-            <Button   //change. nb
+            <Button
               variant="primary"
               onClick={() => {
                 setSelected(null);
@@ -319,7 +310,6 @@ export default function Dashboard() {
             >
               Apply
             </Button>
-
           )}
           <Button variant="outline-secondary" onClick={() => setSelected(null)}>
             Close
