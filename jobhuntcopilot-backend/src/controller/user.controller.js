@@ -60,15 +60,21 @@ exports.getProfile = async (req, res) => {
 exports.updateProfile = async (req, res) => {
   try {
     const { uid } = req.user;
-    const updateData = req.body;
+    const { firstName, lastName, ...rest } = req.body;
+    
 
     const updated = await User.findOneAndUpdate(
       { firebaseUid: uid },
-      updateData,
+      { firstName, lastName, ...rest },
       { new: true }
     );
 
     if (!updated) return res.status(404).json({ message: "Profile not found" });
+
+     // update Firebase Auth displayName
+    await adminAuth.updateUser(uid, {
+      displayName: `${firstName} ${lastName}`,
+    });
 
     return res.json({
       message: "Profile updated",

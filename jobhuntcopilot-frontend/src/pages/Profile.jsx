@@ -1,6 +1,7 @@
 import { useEffect, useState, useMemo } from "react";
 import { Container, Card, Form, Button, Nav, Spinner, Row, Col } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
+import { updateProfile as updateFirebaseProfile } from "firebase/auth";
 import { useAuth } from "../firebase/useAuth";
 import {
   updateUserProfile,
@@ -16,7 +17,7 @@ import "../styles/profile-modern.css";
 
 export default function Profile() {
   const navigate = useNavigate();
-  const { firebaseUser, loading: authLoading, profile } = useAuth();
+  const { firebaseUser, loading: authLoading, profile, refreshProfile } = useAuth();
 
   const [pageLoading, setPageLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("account");
@@ -38,7 +39,7 @@ export default function Profile() {
     [allJobs, savedSet]
   );
 
-  /* ------------ LOAD AFTER AUTH IS READY ------------ */
+  /* ------------ Initialize Profile Data ------------ */
   useEffect(() => {
     if (authLoading) return;      // waiting for Firebase
     if (!profile) return;        
@@ -55,7 +56,7 @@ export default function Profile() {
         // get all of job lists
         const [jobsList, savedIds] = await Promise.all([
           fetchJobs(),
-          fetchSavedJobs(),       // return Set([...])
+          fetchSavedJobs(),
         ]);
 
         const normalized = jobsList.map((j, i) => ({
@@ -90,6 +91,8 @@ export default function Profile() {
 
       const url = res.resumeUrl;
       setResumeUrl(url);
+      // Refresh profile globally
+      await refreshProfile();
     } catch (err) {
       console.error(err);
       alert("Upload failed");
@@ -99,16 +102,29 @@ export default function Profile() {
   };
 
   /* ------------ Update Profile ------------ */
-  const saveProfile = async () => {
-    try {
-      const updated = await updateUserProfile(editFields);
-      console.log("Updated:", updated);
-      alert("Profile updated");
-    } catch (err) {
-      console.error(err);
-      alert("Update failed");
-    }
-  };
+const saveProfile = async () => {
+  try {
+    // Update MongoDB profile via backend
+    await updateUserProfile(editFields);
+
+    // Update Firebase displayName
+    await updateFirebaseProfile(firebaseUser, {
+      displayName: `${editFields.firstName} ${editFields.lastName}`,
+    });
+
+    // Refresh Firebase ID token
+    await firebaseUser.getIdToken(true);
+
+    // Refresh profile globally
+    await refreshProfile();
+
+    alert("Profile updated successfully!");
+  } catch (err) {
+    console.error(err);
+    alert("Profile update failed");
+  }
+};
+
 
   /* ------------ Toggle Save / Unsave ------------ */
   const handleToggleSave = async (job) => {

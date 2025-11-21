@@ -11,7 +11,6 @@ import "../styles/auth.css";
 const Signup = () => {
   const navigate = useNavigate();
 
-  // NEW FIELDS
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
 
@@ -47,18 +46,18 @@ const Signup = () => {
     }
 
     try {
-      // 1. Create Firebase user
+      // Create Firebase user
       const userCred = await createUserWithEmailAndPassword(auth, email, password);
 
-      // 2. Update Firebase displayName
+      // Update Firebase displayName
       await updateProfile(userCred.user, {
         displayName: `${firstName} ${lastName}`,
       });
 
-      // 3. Save user profile in MongoDB via backend
+      // Save user profile in MongoDB via backend
       const token = await userCred.user.getIdToken();
 
-      await fetch("/api/users/create-profile", {
+      const createProfileResponse = await fetch("/api/users/create-profile", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -71,6 +70,10 @@ const Signup = () => {
         }),
       });
 
+      if (!createProfileResponse.ok) {
+        const data = await createProfileResponse.json().catch(() => ({}));
+        throw new Error(data?.message || "Failed to create profile. Try again.");
+      }
       navigate("/");
     } catch (err) {
       console.error("Signup error:", err);
