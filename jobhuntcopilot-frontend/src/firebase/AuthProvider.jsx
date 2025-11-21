@@ -18,6 +18,18 @@ export const AuthProvider = ({ children }) => {
   const [profile, setProfile] = useState(null); // MongoDB profile
   const [loading, setLoading] = useState(true);
 
+
+  // Global refreshProfile()
+  const refreshProfile = async () => {
+    if (!firebaseUser) return null;
+
+    const tokenString = await firebaseUser.getIdToken();
+    const mongoProfile = await apiGet("/api/users/me", tokenString);
+
+    setProfile(mongoProfile.user);
+    return mongoProfile.user;
+  };
+
   useEffect(() => {
     return onAuthStateChanged(auth, async (user) => {
       if (user) {
@@ -30,14 +42,16 @@ export const AuthProvider = ({ children }) => {
           setRole(userRole);
           setFirebaseUser(user);
 
-          // ------- Fetch MongoDB Profile --------
-          try {
+          // Fetch MongoDB Profile
+          setTimeout(async () => {
+            try {
             const userProfile = await apiGet("/api/users/me", token.token);
             setProfile(userProfile.user);
           } catch (profileErr) {
             console.warn("Profile not found, probably new user:" , profileErr);
             setProfile(null);
           }
+          }, 500); // slight delay to ensure backend has created profile         
 
         } catch (err) {
           console.error("Failed to refresh Firebase token:", err);
@@ -54,7 +68,7 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   return (
-    <AuthContext.Provider value={{ firebaseUser, role, profile, loading }}>
+    <AuthContext.Provider value={{ firebaseUser, role, profile, loading, refreshProfile }}>
       {children}
     </AuthContext.Provider>
   );

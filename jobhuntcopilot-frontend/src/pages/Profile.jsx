@@ -11,6 +11,7 @@ import {
   Modal,
 } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
+import { updateProfile as updateFirebaseProfile } from "firebase/auth";
 import { useAuth } from "../firebase/useAuth";
 import {
   updateUserProfile,
@@ -26,7 +27,7 @@ import "../styles/profile-modern.css";
 
 export default function Profile() {
   const navigate = useNavigate();
-  const { firebaseUser, loading: authLoading, profile } = useAuth();
+  const { firebaseUser, loading: authLoading, profile, refreshProfile } = useAuth();
 
   const [pageLoading, setPageLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("account");
@@ -53,7 +54,7 @@ export default function Profile() {
     [allJobs, savedSet]
   );
 
-  /* ------------ LOAD AFTER AUTH IS READY ------------ */
+  /* ------------ Initialize Profile Data ------------ */
   useEffect(() => {
     if (authLoading) return; // waiting for Firebase
     if (!profile) return;
@@ -70,7 +71,7 @@ export default function Profile() {
         // get all of job lists
         const [jobsList, savedIds] = await Promise.all([
           fetchJobs(),
-          fetchSavedJobs(), // return Set([...])
+          fetchSavedJobs(),
         ]);
 
         const normalized = jobsList.map((j, i) => ({
@@ -118,6 +119,8 @@ export default function Profile() {
       const url = res.resumeUrl || res.data?.resumeUrl;
       if (url) {
         setResumeUrl(url);
+        // Refresh profile globally
+        await refreshProfile();
         setShowSuccess(true); // Upload successful pop-up window
       } else {
         setErrorMessage("Upload succeeded but no resume URL returned.");
@@ -133,17 +136,30 @@ export default function Profile() {
   };
 
   /* ------------ Update Profile ------------ */
-  const saveProfile = async () => {
-    try {
-      const updated = await updateUserProfile(editFields);
-      console.log("Updated:", updated);
-      setShowSuccess(true);
-    } catch (err) {
-      console.error(err);
-      setErrorMessage("Update failed.");
-      setShowError(true);
-    }
-  };
+const saveProfile = async () => {
+  try {
+    // Update MongoDB profile via backend
+    await updateUserProfile(editFields);
+
+    // Update Firebase displayName
+    await updateFirebaseProfile(firebaseUser, {
+      displayName: `${editFields.firstName} ${editFields.lastName}`,
+    });
+
+    // Refresh Firebase ID token
+    await firebaseUser.getIdToken(true);
+
+    // Refresh profile globally
+    await refreshProfile();
+
+    setShowSuccess(true);
+  } catch (err) {
+    console.error(err);
+    setErrorMessage("Update failed.");
+    setShowError(true);
+  }
+};
+
 
   /* ------------ Toggle Save / Unsave ------------ */
   const handleToggleSave = async (job) => {
@@ -317,10 +333,10 @@ export default function Profile() {
                 )}
 
                 <Form.Group className="mt-3">
-                  <Form.Label>Upload New Resume (PDF format only)</Form.Label>
+                  <Form.Label>Upload New Resume</Form.Label>
                   <Form.Control
                     type="file"
-                    accept=".pdf"
+                    accept=".pdf,.doc,.docx"
                     onChange={handleResumeUpload}
                   />
                   {uploading && <Spinner size="sm" className="mt-2" />}
