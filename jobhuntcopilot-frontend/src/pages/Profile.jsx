@@ -8,10 +8,10 @@ import {
   Spinner,
   Row,
   Col,
-  Modal,
+  Toast,
+  ToastContainer,
 } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
-import { updateProfile as updateFirebaseProfile } from "firebase/auth";
 import { useAuth } from "../firebase/useAuth";
 import {
   updateUserProfile,
@@ -27,7 +27,7 @@ import "../styles/profile-modern.css";
 
 export default function Profile() {
   const navigate = useNavigate();
-  const { firebaseUser, loading: authLoading, profile, refreshProfile } = useAuth();
+  const { firebaseUser, loading: authLoading, profile } = useAuth();
 
   const [pageLoading, setPageLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("account");
@@ -37,12 +37,21 @@ export default function Profile() {
   const [allJobs, setAllJobs] = useState([]);
   const [savedSet, setSavedSet] = useState(new Set());
 
-  const [editFields, setEditFields] = useState({ firstName: "", lastName: "" });
+  const [editFields, setEditFields] = useState({
+    firstName: "",
+    lastName: "",
+  });
 
-  // Pop up status
-  const [showSuccess, setShowSuccess] = useState(false);
-  const [showError, setShowError] = useState(false);
-  const [errorMessage, setErrorMessage] = useState("");
+  // ======= Toast 状态 =======
+  const [toast, setToast] = useState({
+    show: false,
+    variant: "success", // success | danger
+    message: "",
+  });
+
+  const showToast = (variant, message) => {
+    setToast({ show: true, variant, message });
+  };
 
   const savedCount = savedSet.size;
   const savedJobs = useMemo(
@@ -54,7 +63,7 @@ export default function Profile() {
     [allJobs, savedSet]
   );
 
-  /* ------------ Initialize Profile Data ------------ */
+  /* ------------ LOAD AFTER AUTH IS READY ------------ */
   useEffect(() => {
     if (authLoading) return; // waiting for Firebase
     if (!profile) return;
@@ -68,7 +77,6 @@ export default function Profile() {
           lastName: profile.lastName || "",
         });
 
-        // get all of job lists
         const [jobsList, savedIds] = await Promise.all([
           fetchJobs(),
           fetchSavedJobs(),
@@ -83,25 +91,24 @@ export default function Profile() {
         setSavedSet(savedIds);
       } catch (e) {
         console.error("Profile init failed:", e);
+        showToast("danger", "Failed to load profile.");
       } finally {
         setPageLoading(false);
       }
     })();
   }, [authLoading, profile]);
 
-  /* ------------ Upload Resume (PDF only + Modal 提示) ------------ */
+  /* ------------ Upload Resume (PDF only + Toast) ------------ */
   const handleResumeUpload = async (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    // PDF only
     const isPdf =
       file.type === "application/pdf" ||
       file.name.toLowerCase().endsWith(".pdf");
 
     if (!isPdf) {
-      setErrorMessage("Only PDF files are supported.");
-      setShowError(true);
+      showToast("danger", "Only PDF files are supported.");
       e.target.value = "";
       return;
     }
@@ -119,47 +126,28 @@ export default function Profile() {
       const url = res.resumeUrl || res.data?.resumeUrl;
       if (url) {
         setResumeUrl(url);
-        // Refresh profile globally
-        await refreshProfile();
-        setShowSuccess(true); // Upload successful pop-up window
+        showToast("success", "Resume uploaded successfully.");
       } else {
-        setErrorMessage("Upload succeeded but no resume URL returned.");
-        setShowError(true);
+        showToast("danger", "Upload succeeded but no resume URL returned.");
       }
     } catch (err) {
       console.error(err);
-      setErrorMessage("Upload failed.");
-      setShowError(true);
+      showToast("danger", "Upload failed.");
     } finally {
       setUploading(false);
     }
   };
 
   /* ------------ Update Profile ------------ */
-const saveProfile = async () => {
-  try {
-    // Update MongoDB profile via backend
-    await updateUserProfile(editFields);
-
-    // Update Firebase displayName
-    await updateFirebaseProfile(firebaseUser, {
-      displayName: `${editFields.firstName} ${editFields.lastName}`,
-    });
-
-    // Refresh Firebase ID token
-    await firebaseUser.getIdToken(true);
-
-    // Refresh profile globally
-    await refreshProfile();
-
-    setShowSuccess(true);
-  } catch (err) {
-    console.error(err);
-    setErrorMessage("Update failed.");
-    setShowError(true);
-  }
-};
-
+  const saveProfile = async () => {
+    try {
+      await updateUserProfile(editFields);
+      showToast("success", "Profile updated successfully.");
+    } catch (err) {
+      console.error(err);
+      showToast("danger", "Update failed.");
+    }
+  };
 
   /* ------------ Toggle Save / Unsave ------------ */
   const handleToggleSave = async (job) => {
@@ -174,20 +162,16 @@ const saveProfile = async () => {
     setSavedSet(next);
 
     try {
-      if (already) {
-        await unsaveJob(id);
-      } else {
-        await saveJob(id);
-      }
+      if (already) await unsaveJob(id);
+      else await saveJob(id);
     } catch (e) {
       console.error(e);
       setSavedSet(prev);
-      setErrorMessage(e.message || "Failed to update saved job.");
-      setShowError(true);
+      showToast("danger", e.message || "Failed to update saved job.");
     }
   };
 
-  /* ------------ Loading Screen ------------ */
+  /* ------------ LOADING SCREEN ------------ */
   if (authLoading || pageLoading) {
     return (
       <div className="profile-loading">
@@ -208,29 +192,23 @@ const saveProfile = async () => {
   /* ------------ MAIN UI ------------ */
   return (
     <div className="profile-page-wrapper">
-      {/* SUCCESS MODAL */}
-      <Modal show={showSuccess} onHide={() => setShowSuccess(false)} centered>
-        <Modal.Header closeButton>
-          <Modal.Title>Success</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>Operation completed successfully.</Modal.Body>
-        <Modal.Footer>
-          <Button onClick={() => setShowSuccess(false)}>OK</Button>
-        </Modal.Footer>
-      </Modal>
-
-      {/* ERROR MODAL */}
-      <Modal show={showError} onHide={() => setShowError(false)} centered>
-        <Modal.Header closeButton>
-          <Modal.Title>Error</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>{errorMessage}</Modal.Body>
-        <Modal.Footer>
-          <Button variant="danger" onClick={() => setShowError(false)}>
-            Close
-          </Button>
-        </Modal.Footer>
-      </Modal>
+      {/* ===== Toast Container ===== */}
+      <ToastContainer position="top-end" className="p-3">
+        <Toast
+          bg={toast.variant}
+          show={toast.show}
+          autohide
+          delay={3000}
+          onClose={() => setToast({ ...toast, show: false })}
+        >
+          <Toast.Header closeButton>
+            <strong className="me-auto">
+              {toast.variant === "success" ? "Success" : "Error"}
+            </strong>
+          </Toast.Header>
+          <Toast.Body className="text-white">{toast.message}</Toast.Body>
+        </Toast>
+      </ToastContainer>
 
       <Container className="profile-page-tabs">
         {/* LEFT CARD */}
@@ -333,31 +311,20 @@ const saveProfile = async () => {
                 )}
 
                 <Form.Group className="mt-3">
-                  <Form.Label>Upload New Resume</Form.Label>
-                  <Form.Control
-                    type="file"
-                    accept=".pdf,.doc,.docx"
-                    onChange={handleResumeUpload}
-                  />
+                  <Form.Label>Upload New Resume (PDF only)</Form.Label>
+                  <Form.Control type="file" accept=".pdf" onChange={handleResumeUpload} />
                   {uploading && <Spinner size="sm" className="mt-2" />}
                 </Form.Group>
               </div>
             )}
 
-            {/* SAVED JOBS TAB – use JobCard component */}
+            {/* SAVED JOBS TAB */}
             {activeTab === "saved" && (
               <div className="tab-content-box">
                 {savedJobs.length === 0 ? (
                   <p>No saved jobs yet.</p>
                 ) : (
-                  <Row
-                    xs={1}
-                    sm={2}
-                    lg={2}
-                    xl={3}
-                    xxl={3}
-                    className="rb-grid g-4"
-                  >
+                  <Row xs={1} sm={2} lg={2} xl={3} xxl={3} className="rb-grid g-4">
                     {savedJobs.map((j) => {
                       const id = j._id || j.id || j._uid;
                       return (
@@ -366,7 +333,6 @@ const saveProfile = async () => {
                             job={j}
                             saved={savedSet.has(id)}
                             onToggleSave={handleToggleSave}
-                            // Profile 里先不做详情弹窗，传一个空函数避免报错
                             onDetails={() => {}}
                           />
                         </Col>
