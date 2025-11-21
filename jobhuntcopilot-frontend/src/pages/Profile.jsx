@@ -1,5 +1,15 @@
 import { useEffect, useState, useMemo } from "react";
-import { Container, Card, Form, Button, Nav, Spinner, Row, Col } from "react-bootstrap";
+import {
+  Container,
+  Card,
+  Form,
+  Button,
+  Nav,
+  Spinner,
+  Row,
+  Col,
+  Modal,
+} from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 import { updateProfile as updateFirebaseProfile } from "firebase/auth";
 import { useAuth } from "../firebase/useAuth";
@@ -29,6 +39,11 @@ export default function Profile() {
 
   const [editFields, setEditFields] = useState({ firstName: "", lastName: "" });
 
+  // Pop up status
+  const [showSuccess, setShowSuccess] = useState(false);
+  const [showError, setShowError] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
+
   const savedCount = savedSet.size;
   const savedJobs = useMemo(
     () =>
@@ -41,8 +56,8 @@ export default function Profile() {
 
   /* ------------ Initialize Profile Data ------------ */
   useEffect(() => {
-    if (authLoading) return;      // waiting for Firebase
-    if (!profile) return;        
+    if (authLoading) return; // waiting for Firebase
+    if (!profile) return;
 
     (async () => {
       try {
@@ -74,10 +89,22 @@ export default function Profile() {
     })();
   }, [authLoading, profile]);
 
-  /* ------------ Upload Resume ------------ */
+  /* ------------ Upload Resume (PDF only + Modal 提示) ------------ */
   const handleResumeUpload = async (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
+
+    // PDF only
+    const isPdf =
+      file.type === "application/pdf" ||
+      file.name.toLowerCase().endsWith(".pdf");
+
+    if (!isPdf) {
+      setErrorMessage("Only PDF files are supported.");
+      setShowError(true);
+      e.target.value = "";
+      return;
+    }
 
     setUploading(true);
 
@@ -89,13 +116,20 @@ export default function Profile() {
         headers: { "Content-Type": "multipart/form-data" },
       });
 
-      const url = res.resumeUrl;
-      setResumeUrl(url);
-      // Refresh profile globally
-      await refreshProfile();
+      const url = res.resumeUrl || res.data?.resumeUrl;
+      if (url) {
+        setResumeUrl(url);
+        // Refresh profile globally
+        await refreshProfile();
+        setShowSuccess(true); // Upload successful pop-up window
+      } else {
+        setErrorMessage("Upload succeeded but no resume URL returned.");
+        setShowError(true);
+      }
     } catch (err) {
       console.error(err);
-      alert("Upload failed");
+      setErrorMessage("Upload failed.");
+      setShowError(true);
     } finally {
       setUploading(false);
     }
@@ -118,10 +152,11 @@ const saveProfile = async () => {
     // Refresh profile globally
     await refreshProfile();
 
-    alert("Profile updated successfully!");
+    setShowSuccess(true);
   } catch (err) {
     console.error(err);
-    alert("Profile update failed");
+    setErrorMessage("Update failed.");
+    setShowError(true);
   }
 };
 
@@ -147,7 +182,8 @@ const saveProfile = async () => {
     } catch (e) {
       console.error(e);
       setSavedSet(prev);
-      alert(e.message || "Failed to update saved job");
+      setErrorMessage(e.message || "Failed to update saved job.");
+      setShowError(true);
     }
   };
 
@@ -172,6 +208,30 @@ const saveProfile = async () => {
   /* ------------ MAIN UI ------------ */
   return (
     <div className="profile-page-wrapper">
+      {/* SUCCESS MODAL */}
+      <Modal show={showSuccess} onHide={() => setShowSuccess(false)} centered>
+        <Modal.Header closeButton>
+          <Modal.Title>Success</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>Operation completed successfully.</Modal.Body>
+        <Modal.Footer>
+          <Button onClick={() => setShowSuccess(false)}>OK</Button>
+        </Modal.Footer>
+      </Modal>
+
+      {/* ERROR MODAL */}
+      <Modal show={showError} onHide={() => setShowError(false)} centered>
+        <Modal.Header closeButton>
+          <Modal.Title>Error</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>{errorMessage}</Modal.Body>
+        <Modal.Footer>
+          <Button variant="danger" onClick={() => setShowError(false)}>
+            Close
+          </Button>
+        </Modal.Footer>
+      </Modal>
+
       <Container className="profile-page-tabs">
         {/* LEFT CARD */}
         <Card className="side-profile-card">

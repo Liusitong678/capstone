@@ -1,10 +1,11 @@
 const SavedJob = require('../models/savedJob');
 const Job = require('../models/job');
 
-// 临时：没有用户系统时写死一个 demo 用户
 function getUserId(req) {
-  // TODO: 有登录后，从 req.user.id 里取
-  return 'demo-user';
+  if (req.user && req.user.uid) {
+    return req.user.uid; // ✔ 真正的用户 ID
+  }
+  return "demo-user"; // 🔥 fallback：保持你的项目不挂
 }
 
 // GET /api/saved-jobs  -> 返回当前用户收藏的 jobId 列表
