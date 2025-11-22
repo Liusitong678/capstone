@@ -8,6 +8,7 @@ import About from "./pages/About";
 import Signup from "./pages/Signup.jsx";
 import Login from "./pages/Login.jsx";
 import Upgrade from "./pages/Upgrade.jsx";
+import Footer from "./components/Footer";
 
 import "./App.css";
 
@@ -27,6 +28,7 @@ function App() {
                 <Route path="/signup" element={<Signup />} />
                 <Route path="/login" element={<Login />} />
             </Routes>
+            <Footer />
         </>
     );
 }
