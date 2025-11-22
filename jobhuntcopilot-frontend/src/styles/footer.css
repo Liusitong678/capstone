@@ -1,0 +1,91 @@
+.app-footer {
+  background: #0c0f17;
+  color: #ffffffcc;
+  padding: 40px 0;
+  margin-top: 50px;
+}
+
+/* Titles & Text */
+.footer-title {
+  font-size: 22px;
+  font-weight: 700;
+  color: #ffffff;
+  margin-bottom: 10px;
+}
+
+.footer-text {
+  font-size: 14px;
+  margin: 2px 0;
+  opacity: 0.85;
+}
+
+.footer-subtitle {
+  font-size: 16px;
+  font-weight: 600;
+  color: #ffffff;
+  margin-bottom: 10px;
+}
+
+.footer-tagline {
+  font-size: 13px;
+  opacity: 0.7;
+}
+
+/* Quick Links */
+.footer-links {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.footer-links li {
+  margin-bottom: 8px;
+}
+
+.footer-links a {
+  color: #ffffffcc;
+  text-decoration: none;
+  font-size: 14px;
+  transition: 0.2s ease-in-out;
+}
+
+.footer-links a:hover {
+  color: #ffffff;
+  padding-left: 4px;
+}
+
+/* Social Icons */
+.footer-social {
+  display: flex;
+  gap: 15px;
+  top: 15px;
+  /* justify-content: center; */
+  justify-content: md-end;
+}
+
+.footer-icon {
+  color: #ffffffcc;
+  transition: 0.25s ease;
+}
+
+.footer-icon:hover {
+  color: #ffffff;
+  transform: translateY(-3px);
+}
+
+/* Bottom Copyright */
+.footer-copy {
+  font-size: 12px;
+  opacity: 0.6;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .app-footer {
+    text-align: center;
+  }
+
+  .footer-links {
+    display: inline-block;
+  }
+}
