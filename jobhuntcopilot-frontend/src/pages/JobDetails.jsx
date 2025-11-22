@@ -6,9 +6,9 @@ import {
 } from "react-bootstrap";
 
 // Icons
-import { 
-  FaBuilding, FaMapMarkerAlt, FaBriefcase, FaArrowLeft, 
-  FaMagic, FaFileAlt, FaCheckCircle, FaExclamationTriangle, FaLightbulb 
+import {
+  FaBuilding, FaMapMarkerAlt, FaBriefcase, FaArrowLeft,
+  FaMagic, FaFileAlt, FaCheckCircle, FaExclamationTriangle, FaLightbulb
 } from "react-icons/fa";
 
 // API & Context
@@ -53,8 +53,7 @@ export default function JobDetails() {
     try {
       setCoverLoading(true);
       const data = await createCoverLetter({
-        jobTitle: job.title,
-        jobDescription: job.description 
+        job: job
       });
       setCoverLetter(data.text?.content || data.text || "");
       setShowCoverModal(true);
@@ -117,8 +116,8 @@ export default function JobDetails() {
   return (
     <Container className="py-5" style={{ maxWidth: "900px" }}>
       {/* Back Button */}
-      <Button 
-        variant="link" 
+      <Button
+        variant="link"
         className="text-decoration-none text-muted mb-3 p-0"
         onClick={() => navigate(-1)}
       >
@@ -186,20 +185,20 @@ export default function JobDetails() {
                 <p className="text-muted mb-0 small">Use AI to boost your chances.</p>
               </Col>
               <Col md={4} className="d-flex flex-column gap-2">
-                <Button 
-                  variant="primary" 
-                  size="lg" 
+                <Button
+                  variant="primary"
+                  size="lg"
                   className="d-flex align-items-center justify-content-center w-100 shadow-sm"
                   onClick={handleAnalyzeResume}
                   disabled={coverLoading || scoreLoading}
                   style={{ background: "linear-gradient(45deg, rgb(0, 9, 177), rgb(57, 206, 221))", border: "none" }}
                 >
-                  {scoreLoading ? <Spinner size="sm" /> : <FaMagic className="me-2" />} 
+                  {scoreLoading ? <Spinner size="sm" /> : <FaMagic className="me-2" />}
                   {scoreLoading ? " Analyzing..." : "Analyze Match"}
                 </Button>
 
-                <Button 
-                  variant="secondary" 
+                <Button
+                  variant="secondary"
                   size="lg"
                   className="d-flex align-items-center justify-content-center w-100 shadow-sm"
                   onClick={handleGenerateCoverLetter}
@@ -229,7 +228,7 @@ export default function JobDetails() {
         </Modal.Body>
         <Modal.Footer className="border-0">
           <Button variant="secondary" onClick={() => setShowCoverModal(false)}>Close</Button>
-          <Button variant="primary" onClick={() => {navigator.clipboard.writeText(coverLetter); alert("Copied!")}}>Copy to Clipboard</Button>
+          <Button variant="primary" onClick={() => { navigator.clipboard.writeText(coverLetter); alert("Copied!") }}>Copy to Clipboard</Button>
         </Modal.Footer>
       </Modal>
 
@@ -266,15 +265,15 @@ export default function JobDetails() {
                   </div>
                   <div className="mt-2 text-muted fw-bold">Match Score</div>
                 </Col>
-                
+
                 <Col md={8}>
-                   <Alert variant="light" className="border-0 shadow-sm d-flex gap-3">
-                     <FaLightbulb className="text-warning fs-3 flex-shrink-0" />
-                     <div>
-                       <h6 className="fw-bold text-dark">AI Feedback</h6>
-                       <p className="mb-0 text-secondary">{scoreResult.feedback}</p>
-                     </div>
-                   </Alert>
+                  <Alert variant="light" className="border-0 shadow-sm d-flex gap-3">
+                    <FaLightbulb className="text-warning fs-3 flex-shrink-0" />
+                    <div>
+                      <h6 className="fw-bold text-dark">AI Feedback</h6>
+                      <p className="mb-0 text-secondary">{scoreResult.feedback}</p>
+                    </div>
+                  </Alert>
                 </Col>
               </Row>
 

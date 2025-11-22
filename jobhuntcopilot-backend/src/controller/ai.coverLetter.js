@@ -4,11 +4,11 @@ const User = require("../models/User");
 // Middleware ensures req.user contains Firebase UID
 exports.generateCoverLetter = async (req, res) => {
   try {
-    const { jobTitle, jobDescription } = req.body;
+    const { job } = req.body;  // receive the full job object
     const uid = req.user.uid;
 
-    if (!jobTitle || !jobDescription) {
-      return res.status(400).json({ error: "Missing job title or description" });
+    if (!job || !job.title || !job.description) {
+      return res.status(400).json({ error: "Missing job information" });
     }
 
     // Fetch user profile from MongoDB
@@ -22,11 +22,16 @@ exports.generateCoverLetter = async (req, res) => {
     const email = profile.email || "";
     const skills = Array.isArray(profile.skills) ? profile.skills.join(", ") : "";
 
+    // Build the prompt using full job object
     const prompt = `
 Write a professional and personalized cover letter for the job below.
 
-Job title: ${jobTitle}
-Job description: ${jobDescription}
+Job title: ${job.title}
+Job description: ${job.description}
+Company: ${job.company || ""}
+Location: ${job.location || ""}
+Level: ${job.level || ""}
+Skills required: ${Array.isArray(job.skills) ? job.skills.join(", ") : ""}
 
 Applicant:
 ${name ? `- Name: ${name}` : ""}
