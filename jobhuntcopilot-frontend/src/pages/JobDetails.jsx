@@ -48,21 +48,33 @@ export default function JobDetails() {
 
   // --- Handlers ---
 
-  const handleGenerateCoverLetter = async () => {
-    if (!job) return;
-    try {
-      setCoverLoading(true);
-      const data = await createCoverLetter({
-        job: job
-      });
-      setCoverLetter(data.text?.content || data.text || "");
-      setShowCoverModal(true);
-    } catch (err) {
-      alert(err.message || "Failed to generate cover letter.");
-    } finally {
-      setCoverLoading(false);
-    }
-  };
+ const handleGenerateCoverLetter = async () => {
+  if (!job) return;
+
+  const userResumeUrl = profile?.resumeUrl;
+
+  if (!userResumeUrl) {
+    alert("Please upload a resume in your profile first.");
+    return;
+  }
+
+  try {
+    setCoverLoading(true);
+
+    const data = await createCoverLetter({
+      job: job,
+      resumeUrl: userResumeUrl // send resume URL to backend
+    });
+
+    setCoverLetter(data.text?.content || data.text || "");
+    setShowCoverModal(true);
+  } catch (err) {
+    alert(err.message || "Failed to generate cover letter.");
+  } finally {
+    setCoverLoading(false);
+  }
+};
+
 
   const handleAnalyzeResume = async () => {
     if (!job) return;
