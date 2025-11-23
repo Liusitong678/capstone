@@ -73,9 +73,9 @@ function normalizeJob(j, idx = 0) {
   };
 }
 
-// AI Scoring + AI Cover Letter
+// ------ AI ------
 export const callScore = async (payload) => {
-  // Payload should be: { jobDescription, resumeUrl }
+  // Payload should be: { job, resumeUrl }
   return await api.post("/ai/score", payload);
 };
 
@@ -84,7 +84,12 @@ export const createCoverLetter = async (payload) => {
   return await api.post("/ai/coverLetter", payload); 
 };
 
-// Jobs
+export const chatWithCareerCoach = async (payload) => {
+  // Payload should be: { messages, jobDescription, resumeText }
+  return await api.post("/ai/chat", payload);
+}
+
+// ------ Jobs ------
 export const fetchJobs = async () => {
   const data = await api.get("/jobs");
   const list = Array.isArray(data) ? data : data?.jobs || [];
@@ -96,12 +101,21 @@ export const fetchJobById = async (id) => {
   return normalizeJob(obj);
 };
 
-// Resume
+export const parseJobs = async (url) => {
+  console.log(url);
+  return await api.post("/jobs/parse-jobs", { url });
+};
+
+export const fetchJobDescription = async (url) => {
+  return await api.post("/jobs/fetch-job-detail", { url });
+};
+
+// ------ Resume ------
 export const fetchLatestResume = async () => {
   return await api.get("/resume/latest");
 };
 
-// Saved Jobs
+// ------ Saved Jobs ------
 export const fetchSavedJobs = async () => {
   const data = await api.get("/saved-jobs");
   return new Set(data || []);
@@ -115,7 +129,7 @@ export const unsaveJob = async (jobId) => {
   return await api.delete(`/saved-jobs/${jobId}`);
 };
 
-// User Profile
+// ------ User Profile ------
 export const fetchMyProfile = async () => {
   const res = await api.get("/users/me");
   return res.user;

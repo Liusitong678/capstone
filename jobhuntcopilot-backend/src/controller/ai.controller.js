@@ -1,9 +1,9 @@
 const extractResumeText = require("../utils/extractText");
-const { 
-  GoogleGenerativeAI, 
-  SchemaType, 
-  HarmCategory, 
-  HarmBlockThreshold 
+const {
+  GoogleGenerativeAI,
+  SchemaType,
+  HarmCategory,
+  HarmBlockThreshold
 } = require("@google/generative-ai");
 require("dotenv").config();
 
@@ -121,16 +121,16 @@ exports.scoreResume = async (req, res) => {
         const result = await model.generateContent(prompt);
         const responseText = result.response.text();
         aiData = JSON.parse(responseText);
-        break; 
+        break;
       } catch (err) {
         lastError = err;
-        
+
         if (isFatalError(err)) {
-          throw err; 
+          throw err;
         }
 
         console.warn(`⚠️ Attempt ${attempt} failed. Retrying...`);
-        
+
         if (attempt < MAX_RETRIES) {
           const delayTime = INITIAL_DELAY_MS * Math.pow(2, attempt - 1);
           await sleep(delayTime);
@@ -148,5 +148,56 @@ exports.scoreResume = async (req, res) => {
     console.error("❌ Gemini AI Scoring Error:", err.message);
     const status = (err.status === 400 || err.message.includes("API key")) ? 400 : 500;
     res.status(status).json({ message: "Gemini scoring failed", error: err.message });
+  }
+};
+
+// Chat with Career Coach Context
+exports.chatWithCareerCoach = async (req, res) => {
+  try {
+    const { messages, jobDescription, resumeText } = req.body;
+
+    // Initialize Chat Model
+    const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
+
+    const systemInstruction = `
+      You are an expert Career Coach and Recruiter.
+      User Context:
+      - They are applying for a job with this description: "${jobDescription?.slice(0, 1000)}..."
+      - Using this resume content: "${resumeText?.slice(0, 1000)}..."
+
+      Goal: Answer the user's questions about gaps, improvements, interview prep, or salary negotiation based STRICTLY on the context provided.
+      - Be encouraging but honest. 
+      - Keep answers concise (under 3 sentences unless asked for details).
+    `;
+
+    // Construct History for Gemini
+    const chatHistory = [
+      {
+        role: "user",
+        parts: [{ text: systemInstruction }]
+      },
+      {
+        role: "model",
+        parts: [{ text: "Understood. I have analyzed the job and resume. How can I help?" }]
+      },
+      ...messages.slice(0, -1).map(msg => ({
+        role: msg.sender === "user" ? "user" : "model",
+        parts: [{ text: msg.text }]
+      }))
+    ];
+
+    const chat = model.startChat({ history: chatHistory });
+
+    // Send the latest message
+    const lastUserMessage = messages[messages.length - 1].text;
+    const result = await chat.sendMessage(lastUserMessage);
+    const response = await result.response;
+    const text = response.text();
+
+    res.json({ reply: text });
+
+  } catch (err) {
+    console.error("Chat Error:", err);
+    res.status(500).json({ message: "AI is thinking too hard..." });
   }
 };
