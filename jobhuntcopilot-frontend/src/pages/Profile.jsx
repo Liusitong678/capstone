@@ -8,7 +8,8 @@ import {
   Spinner,
   Row,
   Col,
-  Modal,
+  Toast,
+  ToastContainer,
 } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 import { updateProfile as updateFirebaseProfile } from "firebase/auth";
@@ -27,7 +28,8 @@ import "../styles/profile-modern.css";
 
 export default function Profile() {
   const navigate = useNavigate();
-  const { firebaseUser, loading: authLoading, profile, refreshProfile } = useAuth();
+  const { firebaseUser, loading: authLoading, profile, refreshProfile } =
+    useAuth();
 
   const [pageLoading, setPageLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("account");
@@ -37,14 +39,26 @@ export default function Profile() {
   const [allJobs, setAllJobs] = useState([]);
   const [savedSet, setSavedSet] = useState(new Set());
 
-  const [editFields, setEditFields] = useState({ firstName: "", lastName: "" });
+  const [editFields, setEditFields] = useState({
+    firstName: "",
+    lastName: "",
+  });
 
-  // Pop up status
-  const [showSuccess, setShowSuccess] = useState(false);
-  const [showError, setShowError] = useState(false);
-  const [errorMessage, setErrorMessage] = useState("");
+  // Toast — show success or error
+  const [toast, setToast] = useState({
+    show: false,
+    message: "",
+    variant: "success",
+  });
+
+  const showSuccess = (msg) =>
+    setToast({ show: true, message: msg, variant: "success" });
+
+  const showError = (msg) =>
+    setToast({ show: true, message: msg, variant: "danger" });
 
   const savedCount = savedSet.size;
+
   const savedJobs = useMemo(
     () =>
       allJobs.filter((j) => {
@@ -54,9 +68,9 @@ export default function Profile() {
     [allJobs, savedSet]
   );
 
-  /* ------------ Initialize Profile Data ------------ */
+  /* ------------ LOAD PROFILE DATA ------------ */
   useEffect(() => {
-    if (authLoading) return; // waiting for Firebase
+    if (authLoading) return;
     if (!profile) return;
 
     (async () => {
@@ -68,7 +82,6 @@ export default function Profile() {
           lastName: profile.lastName || "",
         });
 
-        // get all of job lists
         const [jobsList, savedIds] = await Promise.all([
           fetchJobs(),
           fetchSavedJobs(),
@@ -89,19 +102,17 @@ export default function Profile() {
     })();
   }, [authLoading, profile]);
 
-  /* ------------ Upload Resume (PDF only + Modal 提示) ------------ */
+  /* ------------ UPLOAD RESUME ------------ */
   const handleResumeUpload = async (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    // PDF only
     const isPdf =
       file.type === "application/pdf" ||
       file.name.toLowerCase().endsWith(".pdf");
 
     if (!isPdf) {
-      setErrorMessage("Only PDF files are supported.");
-      setShowError(true);
+      showError("Only PDF files are supported.");
       e.target.value = "";
       return;
     }
@@ -119,75 +130,61 @@ export default function Profile() {
       const url = res.resumeUrl || res.data?.resumeUrl;
       if (url) {
         setResumeUrl(url);
-        // Refresh profile globally
         await refreshProfile();
-        setShowSuccess(true); // Upload successful pop-up window
+        showSuccess("Resume uploaded successfully!");
       } else {
-        setErrorMessage("Upload succeeded but no resume URL returned.");
-        setShowError(true);
+        showError("Upload succeeded but no resume URL returned.");
       }
     } catch (err) {
       console.error(err);
-      setErrorMessage("Upload failed.");
-      setShowError(true);
+      showError("Upload failed.");
     } finally {
       setUploading(false);
     }
   };
 
-  /* ------------ Update Profile ------------ */
-const saveProfile = async () => {
-  try {
-    // Update MongoDB profile via backend
-    await updateUserProfile(editFields);
+  /* ------------ UPDATE PROFILE ------------ */
+  const saveProfile = async () => {
+    try {
+      await updateUserProfile(editFields);
 
-    // Update Firebase displayName
-    await updateFirebaseProfile(firebaseUser, {
-      displayName: `${editFields.firstName} ${editFields.lastName}`,
-    });
+      // Update Firebase display name
+      await updateFirebaseProfile(firebaseUser, {
+        displayName: `${editFields.firstName} ${editFields.lastName}`,
+      });
 
-    // Refresh Firebase ID token
-    await firebaseUser.getIdToken(true);
+      await firebaseUser.getIdToken(true);
+      await refreshProfile();
 
-    // Refresh profile globally
-    await refreshProfile();
+      showSuccess("Profile updated successfully!");
+    } catch (err) {
+      console.error(err);
+      showError("Update failed.");
+    }
+  };
 
-    setShowSuccess(true);
-  } catch (err) {
-    console.error(err);
-    setErrorMessage("Update failed.");
-    setShowError(true);
-  }
-};
-
-
-  /* ------------ Toggle Save / Unsave ------------ */
+  /* ------------ SAVE / UNSAVE ------------ */
   const handleToggleSave = async (job) => {
     const id = job._id || job.id || job._uid;
     if (!id) return;
 
     const prev = new Set(savedSet);
     const next = new Set(savedSet);
-    const already = next.has(id);
 
+    const already = next.has(id);
     already ? next.delete(id) : next.add(id);
     setSavedSet(next);
 
     try {
-      if (already) {
-        await unsaveJob(id);
-      } else {
-        await saveJob(id);
-      }
+      already ? await unsaveJob(id) : await saveJob(id);
     } catch (e) {
       console.error(e);
       setSavedSet(prev);
-      setErrorMessage(e.message || "Failed to update saved job.");
-      setShowError(true);
+      showError("Failed to update saved job.");
     }
   };
 
-  /* ------------ Loading Screen ------------ */
+  /* ------------ LOADING & AUTH ------------ */
   if (authLoading || pageLoading) {
     return (
       <div className="profile-loading">
@@ -208,29 +205,24 @@ const saveProfile = async () => {
   /* ------------ MAIN UI ------------ */
   return (
     <div className="profile-page-wrapper">
-      {/* SUCCESS MODAL */}
-      <Modal show={showSuccess} onHide={() => setShowSuccess(false)} centered>
-        <Modal.Header closeButton>
-          <Modal.Title>Success</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>Operation completed successfully.</Modal.Body>
-        <Modal.Footer>
-          <Button onClick={() => setShowSuccess(false)}>OK</Button>
-        </Modal.Footer>
-      </Modal>
+      {/* TOAST — centered */}
+      <ToastContainer position="top-end" className="p-3">
+        <Toast
+          bg={toast.variant}
+          show={toast.show}
+          autohide
+          delay={2800}
+          onClose={() => setToast({ ...toast, show: false })}
+        >
+          <Toast.Header closeButton>
+            <strong className="me-auto">
+              {toast.variant === "success" ? "Success" : "Error"}
+            </strong>
+          </Toast.Header>
+          <Toast.Body className="text-white">{toast.message}</Toast.Body>
+        </Toast>
+      </ToastContainer>
 
-      {/* ERROR MODAL */}
-      <Modal show={showError} onHide={() => setShowError(false)} centered>
-        <Modal.Header closeButton>
-          <Modal.Title>Error</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>{errorMessage}</Modal.Body>
-        <Modal.Footer>
-          <Button variant="danger" onClick={() => setShowError(false)}>
-            Close
-          </Button>
-        </Modal.Footer>
-      </Modal>
 
       <Container className="profile-page-tabs">
         {/* LEFT CARD */}
@@ -336,7 +328,7 @@ const saveProfile = async () => {
                   <Form.Label>Upload New Resume</Form.Label>
                   <Form.Control
                     type="file"
-                    accept=".pdf,.doc,.docx"
+                    accept=".pdf"
                     onChange={handleResumeUpload}
                   />
                   {uploading && <Spinner size="sm" className="mt-2" />}
@@ -344,7 +336,7 @@ const saveProfile = async () => {
               </div>
             )}
 
-            {/* SAVED JOBS TAB – use JobCard component */}
+            {/* SAVED JOBS TAB */}
             {activeTab === "saved" && (
               <div className="tab-content-box">
                 {savedJobs.length === 0 ? (
@@ -366,8 +358,7 @@ const saveProfile = async () => {
                             job={j}
                             saved={savedSet.has(id)}
                             onToggleSave={handleToggleSave}
-                            // Profile 里先不做详情弹窗，传一个空函数避免报错
-                            onDetails={() => {}}
+                            onDetails={() => { }}
                           />
                         </Col>
                       );
