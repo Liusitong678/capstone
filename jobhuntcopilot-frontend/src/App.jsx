@@ -8,8 +8,11 @@ import About from "./pages/About";
 import Signup from "./pages/Signup.jsx";
 import Login from "./pages/Login.jsx";
 import Upgrade from "./pages/Upgrade.jsx";
+import ImportJobs from "./pages/ImportJobs.jsx";
 
 import "./App.css";
+import ImportJobDetails from "./pages/ImportJobDetails.jsx";
+import JobLab from "./pages/JobLab.jsx";
 
 function App() {
     return (
@@ -19,6 +22,9 @@ function App() {
             <Routes>
                 <Route path="/" element={<Dashboard />} />
                 <Route path="/job/:id" element={<JobDetails />} />
+                <Route path="/job-import" element={<ImportJobs />} />
+                <Route path="/job-import/imported-job-details" element={<ImportJobDetails />} />
+                <Route path="/joblab" element={<JobLab />} />
                 <Route path="/profile" element={<Profile />} />
                 <Route path="/about" element={<About />} />
                 <Route path="/upgrade" element={<Upgrade />} />
