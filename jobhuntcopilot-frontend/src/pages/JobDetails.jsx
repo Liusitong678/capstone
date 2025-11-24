@@ -14,6 +14,7 @@ import {
 // API & Context
 import { fetchJobById, callScore, createCoverLetter } from "../services/api";
 import { AuthContext } from "../firebase/AuthContext";
+import AnimatedLoader from "../components/AnimatedLoader";
 
 export default function JobDetails() {
   const { loading: authLoading, profile } = useContext(AuthContext);
@@ -232,6 +233,28 @@ export default function JobDetails() {
           <Button variant="primary" onClick={() => {navigator.clipboard.writeText(coverLetter); alert("Copied!")}}>Copy to Clipboard</Button>
         </Modal.Footer>
       </Modal>
+
+      {/* --- Loading Overlay --- */}
+      {scoreLoading && (
+        <div
+          style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            width: "100%",
+            height: "100vh",
+            backgroundColor: "rgba(31, 31, 39, 0.75)", // White background with slight transparency
+            zIndex: 9999, // High z-index to cover everything
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "center",
+            alignItems: "center",
+          }}
+        >
+          <AnimatedLoader />
+          <h4 className="mt-4 text-light fw-bold">Analyzing Resume Match...</h4>
+        </div>
+      )}
 
       {/* --- Modal: AI Score Result --- */}
       <Modal show={showScoreModal} onHide={() => setShowScoreModal(false)} size="xl" centered>
