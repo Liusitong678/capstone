@@ -8,7 +8,8 @@ import {
 // Icons
 import { 
   FaBuilding, FaMapMarkerAlt, FaBriefcase, FaArrowLeft, 
-  FaMagic, FaFileAlt, FaCheckCircle, FaExclamationTriangle, FaLightbulb 
+  FaMagic, FaFileAlt, FaCheckCircle, FaExclamationTriangle, 
+  FaLightbulb, FaLock, FaCrown 
 } from "react-icons/fa";
 
 // API & Context
@@ -33,6 +34,11 @@ export default function JobDetails() {
   const [scoreResult, setScoreResult] = useState(null);
   const [showScoreModal, setShowScoreModal] = useState(false);
 
+  // --- Premium Feature State ---
+  const [showPremiumModal, setShowPremiumModal] = useState(false);
+
+ const isPremium = profile?.role === "premium";
+
   useEffect(() => {
     if (authLoading) return;
     (async () => {
@@ -51,6 +57,13 @@ export default function JobDetails() {
 
   const handleGenerateCoverLetter = async () => {
     if (!job) return;
+
+    // --- Premium Check ---
+    if (!isPremium) {
+      setShowPremiumModal(true);
+      return;
+    }
+
     try {
       setCoverLoading(true);
       const data = await createCoverLetter({
@@ -199,17 +212,30 @@ export default function JobDetails() {
                   {scoreLoading ? " Analyzing..." : "Analyze Match"}
                 </Button>
 
-                <Button 
-                  variant="secondary" 
-                  size="lg"
-                  className="d-flex align-items-center justify-content-center w-100 shadow-sm"
-                  onClick={handleGenerateCoverLetter}
-                  disabled={coverLoading || scoreLoading}
-                  style={{ background: "linear-gradient(45deg, rgb(18, 0, 116), rgb(146, 0, 136))", border: "none" }}
-                >
-                  {coverLoading ? <Spinner size="sm" /> : <FaFileAlt className="me-2" />}
-                  {coverLoading ? " Writing..." : "Write Cover Letter"}
-                </Button>
+                <div className="position-relative">
+                    <Button 
+                    variant="secondary" 
+                    size="lg"
+                    className="d-flex align-items-center justify-content-center w-100 shadow-sm"
+                    onClick={handleGenerateCoverLetter}
+                    disabled={coverLoading || scoreLoading}
+                    style={{ background: "linear-gradient(45deg, rgb(18, 0, 116), rgb(146, 0, 136))", border: "none" }}
+                    >
+                    {coverLoading ? <Spinner size="sm" /> : (isPremium ? <FaFileAlt className="me-2" /> : <FaLock className="me-2" />)}
+                    {coverLoading ? " Writing..." : "Write Cover Letter"}
+                    </Button>
+                    {/* Optional: Add a small 'Pro' badge overlay if needed */}
+                    {!isPremium && (
+                        <Badge 
+                            bg="warning" 
+                            text="dark" 
+                            className="position-absolute top-0 start-100 translate-middle badge rounded-pill shadow-sm"
+                            style={{ zIndex: 1 }}
+                        >
+                            PRO
+                        </Badge>
+                    )}
+                </div>
               </Col>
             </Row>
           </Card>
@@ -234,6 +260,35 @@ export default function JobDetails() {
         </Modal.Footer>
       </Modal>
 
+      {/* --- Modal: Premium Upsell --- */}
+      <Modal show={showPremiumModal} onHide={() => setShowPremiumModal(false)} size="md" centered>
+        <Modal.Body className="text-center p-5">
+            <div className="mb-4">
+                <span className="d-inline-flex align-items-center justify-content-center bg-warning bg-opacity-10 text-warning rounded-circle" style={{ width: '80px', height: '80px' }}>
+                    <FaCrown size={40} />
+                </span>
+            </div>
+            <h3 className="fw-bold mb-3">Unlock AI Cover Letters</h3>
+            <p className="text-muted mb-4">
+                Generate tailored, professional cover letters instantly for any job description. 
+                Upgrade to Premium to access this feature and stand out from the crowd!
+            </p>
+            <div className="d-grid gap-2">
+                <Button 
+                    variant="warning" 
+                    size="lg" 
+                    className="fw-bold text-dark"
+                    onClick={() => navigate('/upgrade')} // Adjust route to your pricing page
+                >
+                    Upgrade to Premium
+                </Button>
+                <Button variant="link" className="text-muted text-decoration-none" onClick={() => setShowPremiumModal(false)}>
+                    Maybe Later
+                </Button>
+            </div>
+        </Modal.Body>
+      </Modal>
+
       {/* --- Loading Overlay --- */}
       {scoreLoading && (
         <div
@@ -243,8 +298,8 @@ export default function JobDetails() {
             left: 0,
             width: "100%",
             height: "100vh",
-            backgroundColor: "rgba(31, 31, 39, 0.75)", // White background with slight transparency
-            zIndex: 9999, // High z-index to cover everything
+            backgroundColor: "rgba(31, 31, 39, 0.75)",
+            zIndex: 9999,
             display: "flex",
             flexDirection: "column",
             justifyContent: "center",

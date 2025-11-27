@@ -12,10 +12,12 @@ import Signup from "./pages/Signup.jsx";
 import Login from "./pages/Login.jsx";
 import Upgrade from "./pages/Upgrade.jsx";
 import ImportJobs from "./pages/ImportJobs.jsx";
-import ImportJobDetails from "./pages/ImportJobDetails.jsx";
-import JobLab from "./pages/JobLab.jsx";
+import PaymentSuccess from "./pages/PaymentSuccess.jsx";
+import PaymentCancel from "./pages/PaymentCancel.jsx";
 
 import "./App.css";
+import ImportJobDetails from "./pages/ImportJobDetails.jsx";
+import JobLab from "./pages/JobLab.jsx";
 
 function App() {
   return (
@@ -33,6 +35,9 @@ function App() {
         <Route path="/contact" element={<Contact />} />
 
         <Route path="/upgrade" element={<Upgrade />} />
+          <Route path="/payment-success" element={<PaymentSuccess />} />
+          <Route path="/payment-cancel" element={<PaymentCancel />} />
+
 
         {/* Auth */}
         <Route path="/signup" element={<Signup />} />
