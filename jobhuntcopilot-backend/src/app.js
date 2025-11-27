@@ -3,8 +3,19 @@ const cors = require("cors");
 const morgan = require("morgan");
 const routes = require("./routes");
 const { notFound, errorHandler } = require("./middleware/error");
+const { handleStripeWebhook } = require("./webhooks/stripeWebhook");
 
 const app = express();
+
+// Stripe Webhook
+app.post(
+  "/api/payment/webhook",
+  express.raw({ type: "application/json" }),
+  (req, res) => {
+    req.rawBody = req.body;
+    handleStripeWebhook(req, res);
+  }
+);
 
 // Core middleware
 app.use(express.json({ limit: "1mb" }));

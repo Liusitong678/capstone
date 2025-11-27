@@ -5,6 +5,7 @@ const aiRoutes = require("./ai.routes");
 const jobsRoutes = require("./jobs.routes");
 const resumeRoutes = require("./resume.routes");
 const userRoutes = require("./user.routes");
+const paymentRoutes = require("./payment.routes");
 
 const verifyToken = require("../middleware/auth");
 
@@ -22,5 +23,6 @@ router.use("/jobs", verifyToken, jobsRoutes);
 router.use("/saved-jobs", verifyToken, savedRoutes);
 router.use("/resume", verifyToken, resumeRoutes);
 router.use("/users", userRoutes);
+router.use("/payment", verifyToken, paymentRoutes);
 
 module.exports = router;

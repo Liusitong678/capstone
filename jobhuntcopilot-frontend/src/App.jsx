@@ -9,6 +9,8 @@ import Signup from "./pages/Signup.jsx";
 import Login from "./pages/Login.jsx";
 import Upgrade from "./pages/Upgrade.jsx";
 import ImportJobs from "./pages/ImportJobs.jsx";
+import PaymentSuccess from "./pages/PaymentSuccess.jsx";
+import PaymentCancel from "./pages/PaymentCancel.jsx";
 
 import "./App.css";
 import ImportJobDetails from "./pages/ImportJobDetails.jsx";
@@ -28,6 +30,8 @@ function App() {
                 <Route path="/profile" element={<Profile />} />
                 <Route path="/about" element={<About />} />
                 <Route path="/upgrade" element={<Upgrade />} />
+                <Route path="/payment-success" element={<PaymentSuccess />} />
+                <Route path="/payment-cancel" element={<PaymentCancel />} />
 
                 {/* Auth */}
                 <Route path="/signup" element={<Signup />} />

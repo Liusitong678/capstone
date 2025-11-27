@@ -139,4 +139,9 @@ export const updateUserProfile = async (payload) => {
   return await api.patch("/users/update", payload);
 };
 
+// ------ Payments ------
+export const createCheckoutSession = async () => {
+  return await api.post("/payment/create-checkout-session");
+};
+
 export default api;

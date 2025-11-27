@@ -27,7 +27,8 @@
     "morgan": "^1.10.1",
     "multer": "^2.0.2",
     "openai": "^6.8.1",
-    "pdfjs-dist": "^3.4.120"
+    "pdfjs-dist": "^3.4.120",
+    "stripe": "^20.0.0"
   },
   "devDependencies": {
     "nodemon": "^3.1.10"
