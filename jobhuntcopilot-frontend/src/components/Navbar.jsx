@@ -29,14 +29,18 @@ const AppNavbar = () => {
     "Good to see you",
     "Hello",
     "Hey",
-    "Glad you're here"
+    "Glad you're here",
   ];
 
   // Choose a greeting once
-  const randomGreeting = greetings[Math.floor(Math.random() * greetings.length)];
+  const randomGreeting =
+    greetings[Math.floor(Math.random() * greetings.length)];
 
   // Get user's first name
-  const firstName = profile?.firstName || firebaseUser?.displayName?.split(" ")[0] || "";
+  const firstName =
+    profile?.firstName ||
+    firebaseUser?.displayName?.split(" ")[0] ||
+    "";
 
   // Two-letter initials
   const getInitials = () => {
@@ -45,25 +49,30 @@ const AppNavbar = () => {
     }
     if (firebaseUser?.displayName) {
       const parts = firebaseUser.displayName.split(" ");
-      return parts.map(p => p[0]).join("").substring(0, 2).toUpperCase();
+      return parts
+        .map((p) => p[0])
+        .join("")
+        .substring(0, 2)
+        .toUpperCase();
     }
     return "U";
   };
 
-
   return (
     <Navbar expand="lg" className="new-navbar" sticky="top">
       <Container fluid className="px-4">
-
         {/* LEFT LOGO */}
-        <Navbar.Brand as={Link} to="/" className="d-flex align-items-center gap-2 brand-title">
+        <Navbar.Brand
+          as={Link}
+          to="/"
+          className="d-flex align-items-center gap-2 brand-title"
+        >
           <img src={logo} width="45" height="45" alt="Logo" />
           <span>JobHuntCopilot</span>
         </Navbar.Brand>
 
         {/* MOBILE: AVATAR or CREATE BUTTON + TOGGLER */}
         <div className="d-flex d-lg-none ms-auto align-items-center gap-2">
-
           {/* Not logged in */}
           {!firebaseUser && (
             <Button
@@ -71,7 +80,7 @@ const AppNavbar = () => {
               to="/signup"
               className="create-account-btn mobile-create-btn"
             >
-               <RiUser3Fill /> SignUp
+              <RiUser3Fill /> SignUp
             </Button>
           )}
 
@@ -83,12 +92,26 @@ const AppNavbar = () => {
               title={
                 <div className={`avatar-circle ${role}`}>
                   {getInitials()}
-                  {role === "premium" && <span className="pro-badge">⭐</span>}
+                  {role === "premium" && (
+                    <span className="pro-badge">⭐</span>
+                  )}
                 </div>
               }
             >
-              <NavDropdown.Item as={Link} to="/profile">Profile</NavDropdown.Item>
-              <NavDropdown.Item onClick={handleLogout}>Logout</NavDropdown.Item>
+              <NavDropdown.Item as={Link} to="/profile">
+                Profile
+              </NavDropdown.Item>
+
+              {/* 只有 admin 才看到 Admin Dashboard */}
+              {role === "admin" && (
+                <NavDropdown.Item as={Link} to="/admin">
+                  Admin Dashboard
+                </NavDropdown.Item>
+              )}
+
+              <NavDropdown.Item onClick={handleLogout}>
+                Logout
+              </NavDropdown.Item>
             </NavDropdown>
           )}
 
@@ -99,18 +122,38 @@ const AppNavbar = () => {
           />
         </div>
 
-
         {/* CENTER NAV (Collapsible) */}
         <Navbar.Collapse id="main-navbar">
           <Nav className="mx-auto nav-center gap-4">
-            <NavLink to="/" end className="nav-item-link">Home</NavLink>
-            <NavLink to="/job-import" end className="nav-item-link">Import Jobs</NavLink>
-            <NavLink to="/joblab" className="nav-item-link">JobLab</NavLink>
-            <NavLink to="/about" className="nav-item-link">About</NavLink>
-            <NavLink to="/contact" className="nav-item-link">Contact</NavLink>
+            <NavLink to="/" end className="nav-item-link">
+              Home
+            </NavLink>
+            <NavLink to="/job-import" end className="nav-item-link">
+              Import Jobs
+            </NavLink>
+            <NavLink to="/joblab" className="nav-item-link">
+              JobLab
+            </NavLink>
+            <NavLink to="/about" className="nav-item-link">
+              About
+            </NavLink>
+            <NavLink to="/contact" className="nav-item-link">
+              Contact
+            </NavLink>
 
+            {/* Admin 额外菜单 */}
+            {firebaseUser && role === "admin" && (
+              <NavLink to="/admin" className="nav-item-link">
+                Admin
+              </NavLink>
+            )}
+
+            {/* FREE 用户的升级入口（admin / premium 不显示） */}
             {firebaseUser && role === "free" && (
-              <NavLink to="/upgrade" className="nav-item-link upgrade-link">
+              <NavLink
+                to="/upgrade"
+                className="nav-item-link upgrade-link"
+              >
                 Upgrade ⭐
               </NavLink>
             )}
@@ -119,7 +162,6 @@ const AppNavbar = () => {
 
         {/* RIGHT SIDE (DESKTOP) */}
         <div className="d-none d-lg-flex align-items-center ms-auto me-3">
-
           {/* Not logged in, Show Create Account */}
           {!firebaseUser && (
             <Button
@@ -146,17 +188,29 @@ const AppNavbar = () => {
               title={
                 <div className={`avatar-circle ${role}`}>
                   {getInitials()}
-                  {role === "premium" && <span className="pro-badge">⭐</span>}
+                  {role === "premium" && (
+                    <span className="pro-badge">⭐</span>
+                  )}
                 </div>
               }
             >
-              <NavDropdown.Item as={Link} to="/profile">Profile</NavDropdown.Item>
-              <NavDropdown.Item onClick={handleLogout}>Logout</NavDropdown.Item>
+              <NavDropdown.Item as={Link} to="/profile">
+                Profile
+              </NavDropdown.Item>
+
+              {/* 只有 admin 才看到 Admin Dashboard */}
+              {role === "admin" && (
+                <NavDropdown.Item as={Link} to="/admin">
+                  Admin Dashboard
+                </NavDropdown.Item>
+              )}
+
+              <NavDropdown.Item onClick={handleLogout}>
+                Logout
+              </NavDropdown.Item>
             </NavDropdown>
           )}
         </div>
-
-
       </Container>
     </Navbar>
   );

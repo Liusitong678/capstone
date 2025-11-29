@@ -128,6 +128,19 @@ export const saveJob = async (jobId) => {
 export const unsaveJob = async (jobId) => {
   return await api.delete(`/saved-jobs/${jobId}`);
 };
+ //  ------- CURD jobs ----------
+
+export const createJob = async (payload) => {
+  return await api.post("/jobs", payload);
+};
+
+
+export const updateJob = async (id, payload) => {
+  return await api.put(`/jobs/${id}`, payload);
+};
+export const deleteJob = async (id) => {
+  return await api.delete(`/jobs/${id}`);
+};
 
 // --- USER & ADMIN MANAGEMENT ---
 
@@ -163,5 +176,6 @@ export const updateUserProfile = async (payload) => {
 export const createCheckoutSession = async () => {
   return await api.post("/payment/create-checkout-session");
 };
+
 
 export default api;

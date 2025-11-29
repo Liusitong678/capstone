@@ -14,7 +14,7 @@ import { useNavigate } from "react-router-dom";
 import heroImg from "../assets/hero-dashboard.png";
 import { fetchJobs, fetchSavedJobs, saveJob, unsaveJob } from "../services/api";
 import JobCard from "../components/Jobcard";
-import FiltersSidebar from "../components/FiltersSidebar";
+// import FiltersSidebar from "../components/FiltersSidebar";
 import Pager from "../components/Pager";
 import "../styles/dashboard.css";
 import { useAuth } from "../firebase/useAuth";
@@ -25,7 +25,7 @@ export default function Dashboard() {
   const navigate = useNavigate();
 
   const [jobs, setJobs] = useState([]);
-  const [filters, setFilters] = useState({});
+  // const [filters, setFilters] = useState({});
   const [search, setSearch] = useState("");
   const [selected, setSelected] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -74,7 +74,6 @@ export default function Dashboard() {
     })();
   }, [authLoading, firebaseUser]);
 
-  // 搜索逻辑不动
   const visibleJobs = useMemo(() => {
     const q = search.trim().toLowerCase();
     if (!q) return jobs;
@@ -139,7 +138,6 @@ export default function Dashboard() {
     );
   }
 
-  // ⭐ 抽离后的未登录页面
   if (!firebaseUser) {
     return <GuestLanding />;
   }
@@ -147,7 +145,7 @@ export default function Dashboard() {
   // ===== 已登录主页面 =====
   return (
     <div className="rb-root">
-      {/* 顶部深色 Hero 区域 */}
+      {/* Hero  */}
       <div className="rb-toolbar">
         <Container className="rb-hero">
           <div className="rb-hero-left">
@@ -157,7 +155,7 @@ export default function Dashboard() {
               JobHunt Copilot help you stay organized.
             </p>
 
-            {/* 搜索条 */}
+            {/* search bar */}
             <div className="rb-search-shell">
               <div className="rb-search-block rb-search-keyword">
                 <span className="rb-search-icon">🔍</span>
@@ -182,7 +180,7 @@ export default function Dashboard() {
             </div>
           </div>
 
-          {/* 右侧插画（保持你现在的浮动样式） */}
+          {/* right image */}
           <div className="rb-hero-right floating-illustration">
             <img
               src={heroImg}
@@ -193,14 +191,14 @@ export default function Dashboard() {
         </Container>
       </div>
 
-      {/* 列表内容区 */}
+      {/* job list */}
       <Container fluid className="rb-content">
-        <Row className="g-4">
-          <Col xxl={2} lg={3}>
+        <Row xs={1} sm={2} lg={2} xl={3} xxl={3} className="rb-grid g-5 px-3">
+          {/* <Col xxl={2} lg={3}>
             <FiltersSidebar state={filters} setState={setFilters} />
-          </Col>
+          </Col> */}
 
-          <Col xxl={10} lg={9}>
+          <Col xxl={12} lg={13}>
             <div className="d-flex justify-content-between align-items-center mb-2">
               <div className="rb-section-title">Recommended jobs</div>
               <div className="text-muted small">
@@ -255,7 +253,7 @@ export default function Dashboard() {
         </Row>
       </Container>
 
-      {/* 详情弹窗 */}
+      {/* details pop */}
       <Modal
         show={!!selected}
         onHide={() => setSelected(null)}
