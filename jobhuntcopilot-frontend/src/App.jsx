@@ -14,6 +14,7 @@ import Upgrade from "./pages/Upgrade.jsx";
 import ImportJobs from "./pages/ImportJobs.jsx";
 import PaymentSuccess from "./pages/PaymentSuccess.jsx";
 import PaymentCancel from "./pages/PaymentCancel.jsx";
+import AdminDashboard from "./pages/AdminDashboard";
 
 import "./App.css";
 import ImportJobDetails from "./pages/ImportJobDetails.jsx";
@@ -35,6 +36,7 @@ function App() {
         <Route path="/about" element={<About />} />
         <Route path="/contact" element={<Contact />} />
         <Route path="/super-admin" element={<SuperAdminDashboard />} />
+        <Route path="/admin" element={<AdminDashboard />} />
 
 
         <Route path="/upgrade" element={<Upgrade />} />
