@@ -129,6 +129,26 @@ export const unsaveJob = async (jobId) => {
   return await api.delete(`/saved-jobs/${jobId}`);
 };
 
+// --- USER & ADMIN MANAGEMENT ---
+
+export const fetchAllUsers = async () => {
+  const res = await api.get("/users/all");
+  return res.users || [];
+};
+
+export const createUserAsAdmin = async (userData) => {
+  // userData: { email, password, firstName, lastName, role }
+  return await api.post("/users/admin-create", userData);
+};
+
+export const deleteUser = async (uid) => {
+  return await api.delete(`/users/${uid}`);
+};
+
+export const updateUserRole = async (uid, role) => {
+  return await api.post("/users/set-role", { uid, role });
+};
+
 // ------ User Profile ------
 export const fetchMyProfile = async () => {
   const res = await api.get("/users/me");

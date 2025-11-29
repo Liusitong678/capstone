@@ -122,3 +122,72 @@ exports.setUserRole = async (req, res) => {
     });
   }
 };
+
+// --------------------------------------
+// GET ALL USERS (Admin Only)
+exports.getAllUsers = async (req, res) => {
+  try {
+    // Fetch all users from MongoDB
+    const users = await User.find({}).sort({ createdAt: -1 });
+    return res.json({ users });
+  } catch (err) {
+    console.error("getAllUsers error:", err);
+    res.status(500).json({ message: "Server error", error: err.message });
+  }
+};
+
+// ADMIN CREATE USER (Create Auth + DB Profile)
+exports.adminCreateUser = async (req, res) => {
+  try {
+    const { email, password, firstName, lastName, role } = req.body;
+
+    if (!email || !password || !firstName || !lastName) {
+      return res.status(400).json({ message: "All fields are required" });
+    }
+
+    // Create in Firebase Auth
+    const userRecord = await adminAuth.createUser({
+      email,
+      password,
+      displayName: `${firstName} ${lastName}`,
+    });
+
+    // Set Custom Claims (Role)
+    const assignedRole = role || "free";
+    await adminAuth.setCustomUserClaims(userRecord.uid, { role: assignedRole });
+
+    // Create in MongoDB
+    const newUser = await User.create({
+      firebaseUid: userRecord.uid,
+      email,
+      firstName,
+      lastName,
+      role: assignedRole,
+    });
+
+    return res.json({ message: "User created successfully", user: newUser });
+  } catch (err) {
+    console.error("adminCreateUser error:", err);
+    res.status(500).json({ message: "Failed to create user", error: err.message });
+  }
+};
+
+// DELETE USER (Admin Only)
+exports.deleteUser = async (req, res) => {
+  try {
+    const { uid } = req.params;
+
+    if (!uid) return res.status(400).json({ message: "User ID required" });
+
+    // Delete from Firebase Auth
+    await adminAuth.deleteUser(uid);
+
+    // Delete from MongoDB
+    await User.findOneAndDelete({ firebaseUid: uid });
+
+    return res.json({ message: "User deleted successfully", uid });
+  } catch (err) {
+    console.error("deleteUser error:", err);
+    res.status(500).json({ message: "Failed to delete user", error: err.message });
+  }
+};
