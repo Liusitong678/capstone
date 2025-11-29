@@ -34,6 +34,9 @@ export default function JobDetails() {
   const [scoreResult, setScoreResult] = useState(null);
   const [showScoreModal, setShowScoreModal] = useState(false);
 
+  const [selectedModel, setSelectedModel] = useState("adaptive_similarity");
+
+
   // --- Premium Feature State ---
   const [showPremiumModal, setShowPremiumModal] = useState(false);
 
@@ -92,8 +95,10 @@ export default function JobDetails() {
       setScoreLoading(true);
       const data = await callScore({
         job: job,
-        resumeUrl: userResumeUrl
+        resumeUrl: userResumeUrl,
+        model: isPremium ? selectedModel : "adaptive_similarity"
       });
+
       setScoreResult(data);
       setShowScoreModal(true);
     } catch (err) {
@@ -199,7 +204,24 @@ export default function JobDetails() {
                 <h5 className="fw-bold mb-1">Ready to apply?</h5>
                 <p className="text-muted mb-0 small">Use AI to boost your chances.</p>
               </Col>
-              <Col md={4} className="d-flex flex-column gap-2">
+              <Col md={4} className="d-flex flex-column gap-3">
+
+                {/* Premium-only Model Selector */}
+                {isPremium && (
+                  <div>
+                    <label className="fw-bold small text-muted mb-1">Select Scoring Model</label>
+                    <select
+                      className="form-select shadow-sm"
+                      value={selectedModel}
+                      onChange={(e) => setSelectedModel(e.target.value)}
+                    >
+                      <option value="adaptive_similarity">Adaptive Similarity Model (Fast)</option>
+                      <option value="gemini">Gemini AI Model (Advanced)</option>
+                    </select>
+                  </div>
+                )}
+
+                {/* Analyze Resume Button */}
                 <Button 
                   variant="primary" 
                   size="lg" 
@@ -212,31 +234,38 @@ export default function JobDetails() {
                   {scoreLoading ? " Analyzing..." : "Analyze Match"}
                 </Button>
 
+                {/* Cover Letter Button */}
                 <div className="position-relative">
-                    <Button 
+                  <Button 
                     variant="secondary" 
                     size="lg"
                     className="d-flex align-items-center justify-content-center w-100 shadow-sm"
                     onClick={handleGenerateCoverLetter}
                     disabled={coverLoading || scoreLoading}
                     style={{ background: "linear-gradient(45deg, rgb(18, 0, 116), rgb(146, 0, 136))", border: "none" }}
-                    >
-                    {coverLoading ? <Spinner size="sm" /> : (isPremium ? <FaFileAlt className="me-2" /> : <FaLock className="me-2" />)}
-                    {coverLoading ? " Writing..." : "Write Cover Letter"}
-                    </Button>
-                    {/* Optional: Add a small 'Pro' badge overlay if needed */}
-                    {!isPremium && (
-                        <Badge 
-                            bg="warning" 
-                            text="dark" 
-                            className="position-absolute top-0 start-100 translate-middle badge rounded-pill shadow-sm"
-                            style={{ zIndex: 1 }}
-                        >
-                            PRO
-                        </Badge>
+                  >
+                    {coverLoading ? (
+                      <Spinner size="sm" />
+                    ) : (
+                      isPremium ? <FaFileAlt className="me-2" /> : <FaLock className="me-2" />
                     )}
+                    {coverLoading ? " Writing..." : "Write Cover Letter"}
+                  </Button>
+
+                  {!isPremium && (
+                    <Badge 
+                      bg="warning" 
+                      text="dark" 
+                      className="position-absolute top-0 start-100 translate-middle badge rounded-pill shadow-sm"
+                      style={{ zIndex: 1 }}
+                    >
+                      PRO
+                    </Badge>
+                  )}
                 </div>
+
               </Col>
+
             </Row>
           </Card>
         </Card.Body>
