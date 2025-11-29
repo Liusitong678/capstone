@@ -5,19 +5,13 @@ const {
   createProfile,
   getProfile,
   updateProfile,
-  setUserRole
+  setUserRole,
+  getAllUsers,
+  adminCreateUser,
+  deleteUser
 } = require("../controller/user.controller");
 
-const verifyFirebaseToken = require("../middleware/auth");
-
-// For debugging in console
-console.log("Loaded controller methods:", {
-  createProfile,
-  getProfile,
-  updateProfile,
-  setUserRole
-});
-console.log("verifyFirebaseToken:", verifyFirebaseToken);
+const { verifyFirebaseToken, requireAdmin } = require("../middleware/auth");
 
 
 // DEVELOPMENT ONLY – make admin
@@ -63,6 +57,17 @@ router.post("/set-role", verifyFirebaseToken, async (req, res) => {
     res.status(500).json({ message: "Server error", error: err.message });
   }
 });
+
+// --- ADMIN ROUTES ---
+// GET ALL USERS (ADMIN ONLY)
+router.get("/all", verifyFirebaseToken, requireAdmin, getAllUsers);
+
+// CREATE USER (ADMIN ONLY)
+router.post("/admin-create", verifyFirebaseToken, requireAdmin, adminCreateUser);
+
+// DELETE USER (ADMIN ONLY)
+router.delete("/:uid", verifyFirebaseToken, requireAdmin, deleteUser);
+
 
 
 module.exports = router;

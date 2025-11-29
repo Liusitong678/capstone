@@ -32,6 +32,12 @@ export default function JobLab() {
   const [jobDesc, setJobDesc] = useState("");
   const [resumeUrl, setResumeUrl] = useState(profile?.resumeUrl || "");
 
+  // Premium user check
+  const isPremium = profile?.role === "premium";
+
+  // Model selection for premium users
+  const [selectedModel, setSelectedModel] = useState("adaptive_similarity");
+
   // States
   const [analyzing, setAnalyzing] = useState(false);
   const [scoreData, setScoreData] = useState(null);
@@ -46,34 +52,28 @@ export default function JobLab() {
   // Analyze Job Description vs Resume
   const handleAnalyze = async () => {
     if (!jobDesc) return setError("Please paste a job description.");
-    // if (!resumeUrl) return setError("No resume found. Please upload one in your profile.");
 
     setAnalyzing(true);
     setError("");
     setScoreData(null);
 
     try {
-      const mockJobPayload = {
-        title: "Custom Job Entry",
-        company: "Unknown Company",
-        description: jobDesc,
-        skills: [],
-        level: "Not specified",
-      };
+      const mockJobPayload = jobDesc;
 
-      // Call Scoring API
+      // Call Scoring API with model selection
       const res = await callScore({
         job: mockJobPayload,
         resumeUrl: profile.resumeUrl,
+        model: isPremium ? selectedModel : "adaptive_similarity",
       });
 
       setScoreData(res);
 
-      // Initialize Chat with a friendly message
+      // Initialize Chat
       setMessages([
         {
           sender: "bot",
-          text: `I've analyzed your match against this description. You have a score of ${res.score}%. What would you like to know?`,
+          text: `I've analyzed your match. You scored ${res.score}%. What would you like to explore?`,
         },
       ]);
     } catch (err) {
@@ -135,8 +135,7 @@ export default function JobLab() {
               <FaFlask className="me-2" /> Job Lab
             </h1>
             <p className="rb-hero-subtitle">
-              Paste any job description below to test your resume against it
-              instantly.
+              Paste any job description below to test your resume instantly.
             </p>
           </div>
         </Container>
@@ -150,6 +149,7 @@ export default function JobLab() {
               <Card.Header className="bg-white border-bottom-0 pt-4 px-4">
                 <h5 className="fw-bold mb-0">🔬 Experiment Setup</h5>
               </Card.Header>
+
               <Card.Body className="px-4 pb-4">
                 {/* Resume Selector */}
                 <Form.Group className="mb-4">
@@ -162,9 +162,7 @@ export default function JobLab() {
                       <div className="fw-bold text-truncate">
                         {profile?.resumeUrl || "My Resume.pdf"}
                       </div>
-                      <div className="small text-muted">
-                        Uploaded to Profile
-                      </div>
+                      <div className="small text-muted">Uploaded to Profile</div>
                     </div>
                   </div>
                 </Form.Group>
@@ -185,8 +183,26 @@ export default function JobLab() {
                   />
                 </Form.Group>
 
+                {/* PREMIUM: MODEL SELECTOR */}
+                {isPremium && (
+                  <Form.Group className="mb-4">
+                    <Form.Label className="fw-bold text-muted small text-uppercase">
+                      Select Scoring Model
+                    </Form.Label>
+                    <Form.Select
+                      className="shadow-sm"
+                      value={selectedModel}
+                      onChange={(e) => setSelectedModel(e.target.value)}
+                    >
+                      <option value="adaptive_similarity">Adaptive Similarity Model (Fast)</option>
+                      <option value="gemini">Gemini AI Model (Advanced)</option>
+                    </Form.Select>
+                  </Form.Group>
+                )}
+
                 {error && <Alert variant="danger">{error}</Alert>}
 
+                {/* RUN ANALYSIS */}
                 <Button
                   variant="primary"
                   size="lg"
@@ -210,17 +226,15 @@ export default function JobLab() {
             </Card>
           </Col>
 
-          {/* Results & Chat */}
+          {/* RIGHT SIDE – RESULTS + CHAT */}
           <Col lg={7}>
             {!scoreData ? (
-              // EMPTY STATE
               <div className="h-100 d-flex flex-column justify-content-center align-items-center text-center p-5 border rounded-4 bg-light text-muted opacity-50">
                 <FaFlask size={60} className="mb-3" />
                 <h4>Ready to Experiment</h4>
-                <p>Enter a job description on the left to see results here.</p>
+                <p>Paste a job description to see your resume match.</p>
               </div>
             ) : (
-              // RESULTS STATE
               <div className="d-flex flex-column gap-3 h-100">
                 {/* Score Card */}
                 <Card className="border-0 shadow-sm rounded-4 overflow-hidden">
@@ -237,7 +251,11 @@ export default function JobLab() {
                         <small className="text-muted fw-bold">
                           MATCH SCORE
                         </small>
+                        <div className="mt-1 small text-muted">
+                          Model: {scoreData.modelUsed || "adaptive_similarity"}
+                        </div>
                       </Col>
+
                       <Col md={8} className="ps-md-4 mt-3 mt-md-0">
                         <Alert
                           variant="info"
@@ -258,6 +276,7 @@ export default function JobLab() {
                       <Card.Header className="bg-success bg-opacity-10 text-success fw-bold border-0">
                         <FaCheckCircle className="me-2" /> Matched Skills
                       </Card.Header>
+
                       <Card.Body>
                         {scoreData.matched.length > 0 ? (
                           <div className="d-flex flex-wrap gap-2">
@@ -275,12 +294,13 @@ export default function JobLab() {
                       </Card.Body>
                     </Card>
                   </Col>
+
                   <Col md={6}>
                     <Card className="border-0 shadow-sm rounded-4 h-100">
                       <Card.Header className="bg-danger bg-opacity-10 text-danger fw-bold border-0">
-                        <FaExclamationTriangle className="me-2" /> Missing
-                        Keywords
+                        <FaExclamationTriangle className="me-2" /> Missing Keywords
                       </Card.Header>
+
                       <Card.Body>
                         {scoreData.missing.length > 0 ? (
                           <div className="d-flex flex-wrap gap-2">
@@ -297,7 +317,7 @@ export default function JobLab() {
                           </div>
                         ) : (
                           <span className="text-success small">
-                            Great job! No key skills missing.
+                            Perfect! No key skills missing.
                           </span>
                         )}
                       </Card.Body>
@@ -312,12 +332,11 @@ export default function JobLab() {
                 >
                   <Card.Header className="bg-white border-bottom pt-3 pb-2">
                     <h6 className="fw-bold mb-0">
-                      <FaRobot className="text-primary me-2" /> Job Lab
-                      Assistant
+                      <FaRobot className="text-primary me-2" /> Job Lab Assistant
                     </h6>
                   </Card.Header>
 
-                  {/* Messages Area */}
+                  {/* Chat messages */}
                   <Card.Body
                     className="bg-light d-flex flex-column overflow-auto"
                     style={{ maxHeight: "400px" }}
@@ -349,7 +368,7 @@ export default function JobLab() {
                     <div ref={chatEndRef} />
                   </Card.Body>
 
-                  {/* Input Area */}
+                  {/* Chat Input */}
                   <div className="p-3 border-top bg-white rounded-bottom-4">
                     <Form onSubmit={handleSendChat} className="d-flex gap-2">
                       <Form.Control
@@ -384,8 +403,8 @@ export default function JobLab() {
             left: 0,
             width: "100%",
             height: "100vh",
-            backgroundColor: "rgba(31, 31, 39, 0.75)", // White background with slight transparency
-            zIndex: 9999, // High z-index to cover everything
+            backgroundColor: "rgba(31, 31, 39, 0.75)",
+            zIndex: 9999,
             display: "flex",
             flexDirection: "column",
             justifyContent: "center",
@@ -393,7 +412,9 @@ export default function JobLab() {
           }}
         >
           <AnimatedLoader />
-          <h4 className="mt-4 text-light fw-bold">Analyzing Resume Match...</h4>
+          <h4 className="mt-4 text-light fw-bold">
+            Analyzing Resume Match...
+          </h4>
         </div>
       )}
     </div>

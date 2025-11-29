@@ -7,7 +7,7 @@ const resumeRoutes = require("./resume.routes");
 const userRoutes = require("./user.routes");
 const paymentRoutes = require("./payment.routes");
 
-const verifyToken = require("../middleware/auth");
+const { verifyFirebaseToken } = require("../middleware/auth");
 
 
 
@@ -18,11 +18,11 @@ router.get("/public", (req, res) => {
 
 // Protected routes (LOGIN REQUIRED)
 
-router.use("/ai", verifyToken, aiRoutes);
-router.use("/jobs", verifyToken, jobsRoutes);
-router.use("/saved-jobs", verifyToken, savedRoutes);
-router.use("/resume", verifyToken, resumeRoutes);
-router.use("/users", userRoutes);
-router.use("/payment", verifyToken, paymentRoutes);
+router.use("/ai", verifyFirebaseToken, aiRoutes);
+router.use("/jobs", verifyFirebaseToken, jobsRoutes);
+router.use("/saved-jobs", verifyFirebaseToken, savedRoutes);
+router.use("/resume", verifyFirebaseToken, resumeRoutes);
+router.use("/users", verifyFirebaseToken, userRoutes);
+router.use("/payment", verifyFirebaseToken, paymentRoutes);
 
 module.exports = router;
