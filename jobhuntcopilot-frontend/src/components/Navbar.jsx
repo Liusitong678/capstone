@@ -140,9 +140,12 @@ const AppNavbar = () => {
               </NavLink>
             )}
 
-            <NavLink to="/pricing" className="nav-item-link">
-              Pricing
-            </NavLink>
+            {!firebaseUser && (
+              <NavLink to="/pricing" className="nav-item-link">
+                Pricing
+              </NavLink>
+            )}
+            
             
             <NavLink to="/about" className="nav-item-link">
               About

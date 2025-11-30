@@ -13,7 +13,7 @@ const Pricing = () => {
         </h1>
         <p className="upgrade-subtitle">
           Start for free and upgrade when you're ready to accelerate your international job search 
-          with AI-powered tools and unlimited tracking.
+          with AI-powered tools.
         </p>
       </div>
 
@@ -106,7 +106,7 @@ const Pricing = () => {
             <FiStar className="premium-icon" />
             <h2 className="plan-title">Pro Plan</h2>
             <p className="plan-price">
-              <span>$19</span> / month
+              <span>$4.99</span> / month
             </p>
           </div>
 
