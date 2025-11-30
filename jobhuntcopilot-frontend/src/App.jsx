@@ -21,6 +21,7 @@ import ImportJobDetails from "./pages/ImportJobDetails.jsx";
 import JobLab from "./pages/JobLab.jsx";
 import SuperAdminDashboard from "./pages/SuperAdminDashboard.jsx";
 import ProtectedRoute from "./components/ProtectedRoute.jsx";
+import Pricing from "./pages/Pricing.jsx";
 
 function App() {
   return (
@@ -68,6 +69,7 @@ function App() {
           }
         />
         <Route path="/about" element={<About />} />
+        <Route path="/pricing" element={<Pricing />} />
         <Route path="/contact" element={<Contact />} />
         <Route path="/super-admin" element={<SuperAdminDashboard />} />
         <Route path="/admin" element={<AdminDashboard />} />

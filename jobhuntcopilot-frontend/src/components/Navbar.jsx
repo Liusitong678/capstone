@@ -139,6 +139,10 @@ const AppNavbar = () => {
                 Fetcher
               </NavLink>
             )}
+
+            <NavLink to="/pricing" className="nav-item-link">
+              Pricing
+            </NavLink>
             
             <NavLink to="/about" className="nav-item-link">
               About
