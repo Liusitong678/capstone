@@ -132,7 +132,7 @@ export default function JobLab() {
         <Container className="rb-hero py-5">
           <div className="rb-hero-left">
             <h1 className="rb-hero-title">
-              <FaFlask className="me-2" /> Job Lab
+              <FaFlask className="me-2" /> Job Relevance Analyzer
             </h1>
             <p className="rb-hero-subtitle">
               Paste any job description below to test your resume instantly.

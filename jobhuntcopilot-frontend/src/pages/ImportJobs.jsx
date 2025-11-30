@@ -41,7 +41,7 @@ export default function ImportJobs() {
       <div className="rb-toolbar">
         <Container className="rb-hero">
           <div className="rb-hero-left">
-            <h1 className="rb-hero-title">Universal Job Importer</h1>
+            <h1 className="rb-hero-title">Universal Job Fetcher</h1>
             <p className="rb-hero-subtitle">Paste a career page link to import jobs.</p>
             <Form onSubmit={handleFetch} className="rb-search-shell">
               <div className="rb-search-block rb-search-keyword" style={{ flex: 1 }}>

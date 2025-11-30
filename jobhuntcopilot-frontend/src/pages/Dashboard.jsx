@@ -200,7 +200,7 @@ export default function Dashboard() {
 
           <Col xxl={12} lg={13}>
             <div className="d-flex justify-content-between align-items-center mb-2">
-              <div className="rb-section-title">Recommended jobs</div>
+              <div className="rb-section-title">Job Feeds</div>
               <div className="text-muted small">
                 Sort by: <strong>Last updated</strong>
               </div>
