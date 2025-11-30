@@ -1,6 +1,6 @@
 :root {
   --nav-height: 80px; 
-  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+  font-family: "Inter", system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
   font-weight: 400;
 
@@ -16,4 +16,10 @@
 
 body {
   margin: 0;
+  font-family: "Inter", system-ui, Avenir, Helvetica, Arial, sans-serif !important;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: "Heebo", sans-serif;
+  font-weight: 600;
 }
