@@ -126,14 +126,19 @@ const AppNavbar = () => {
         <Navbar.Collapse id="main-navbar">
           <Nav className="mx-auto nav-center gap-4">
             <NavLink to="/" end className="nav-item-link">
-              Feeds
+              {firebaseUser ? "Feeds" : "Home"}
             </NavLink>
-            <NavLink to="/joblab" className="nav-item-link">
-              Analyzer
-            </NavLink>
-            <NavLink to="/job-import" end className="nav-item-link">
-              Fetcher
-            </NavLink>
+            
+            {firebaseUser && (
+              <NavLink to="/joblab" className="nav-item-link">
+                Analyzer
+              </NavLink>
+            )}
+            {firebaseUser && (
+              <NavLink to="/job-import" end className="nav-item-link">
+                Fetcher
+              </NavLink>
+            )}
             
             <NavLink to="/about" className="nav-item-link">
               About
@@ -164,6 +169,12 @@ const AppNavbar = () => {
         {/* RIGHT SIDE (DESKTOP) */}
         <div className="d-none d-lg-flex align-items-center ms-auto me-3">
           {/* Not logged in, Show Create Account */}
+          {!firebaseUser && (
+            <NavLink to="/login" className="nav-item-link" style={{ marginRight: "1.5rem"}}>
+              Log in
+            </NavLink>
+          )}
+          
           {!firebaseUser && (
             <Button
               as={Link}

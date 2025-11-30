@@ -20,6 +20,7 @@ import "./App.css";
 import ImportJobDetails from "./pages/ImportJobDetails.jsx";
 import JobLab from "./pages/JobLab.jsx";
 import SuperAdminDashboard from "./pages/SuperAdminDashboard.jsx";
+import ProtectedRoute from "./components/ProtectedRoute.jsx";
 
 function App() {
   return (
@@ -28,21 +29,59 @@ function App() {
 
       <Routes>
         <Route path="/" element={<Dashboard />} />
-        <Route path="/job/:id" element={<JobDetails />} />
-        <Route path="/job-import" element={<ImportJobs />} />
-        <Route path="/job-import/imported-job-details" element={<ImportJobDetails />} />
-        <Route path="/joblab" element={<JobLab />} />
-        <Route path="/profile" element={<Profile />} />
+        <Route
+          path="/job/:id"
+          element={
+            <ProtectedRoute>
+              <JobDetails />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/job-import"
+          element={
+            <ProtectedRoute>
+              <ImportJobs />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/job-import/imported-job-details"
+          element={<ImportJobDetails />}
+        />
+
+        <Route
+          path="/joblab"
+          element={
+            <ProtectedRoute>
+              <JobLab />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/profile"
+          element={
+            <ProtectedRoute>
+              <Profile />
+            </ProtectedRoute>
+          }
+        />
         <Route path="/about" element={<About />} />
         <Route path="/contact" element={<Contact />} />
         <Route path="/super-admin" element={<SuperAdminDashboard />} />
         <Route path="/admin" element={<AdminDashboard />} />
 
-
-        <Route path="/upgrade" element={<Upgrade />} />
-          <Route path="/payment-success" element={<PaymentSuccess />} />
-          <Route path="/payment-cancel" element={<PaymentCancel />} />
-
+        <Route
+          path="/upgrade"
+          element={
+            <ProtectedRoute>
+              <Upgrade />
+            </ProtectedRoute>
+          }
+        />
+        <Route path="/payment-success" element={<PaymentSuccess />} />
+        <Route path="/payment-cancel" element={<PaymentCancel />} />
 
         {/* Auth */}
         <Route path="/signup" element={<Signup />} />
