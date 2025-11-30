@@ -1,6 +1,17 @@
 import { useEffect, useState } from "react";
 import { Modal, Form, Button, Row, Col } from "react-bootstrap";
 
+const emptyForm = () => ({
+  title: "",
+  company: "",
+  location: "",
+  url: "",
+  source: "JSearch",
+  postedAt: new Date().toISOString().slice(0, 10),
+  skillsText: "",
+  description: "",
+});
+
 export default function JobFormModal({
   show,
   mode = "add",
@@ -9,16 +20,7 @@ export default function JobFormModal({
   onHide,
   onSubmit,
 }) {
-  const [form, setForm] = useState({
-    title: "",
-    company: "",
-    location: "",
-    url: "",
-    source: "JSearch",
-    postedAt: new Date().toISOString().slice(0, 10),
-    skillsText: "",
-    description: "",
-  });
+  const [form, setForm] = useState(emptyForm);
 
   useEffect(() => {
     if (!show) return;
@@ -38,6 +40,9 @@ export default function JobFormModal({
           : "",
         description: initialJob.description || "",
       });
+    } else {
+      // ✅ Add 模式：清空成默认
+      setForm(emptyForm());
     }
   }, [show, initialJob]);
 
@@ -77,10 +82,9 @@ export default function JobFormModal({
           </Modal.Title>
         </Modal.Header>
 
-        {/* ================= Two Column Form ================= */}
         <Modal.Body>
           <Row>
-            {/* LEFT column */}
+            {/* LEFT column  */}
             <Col md={6}>
               <Form.Group className="mb-3">
                 <Form.Label>Title *</Form.Label>
@@ -88,6 +92,7 @@ export default function JobFormModal({
                   name="title"
                   value={form.title}
                   onChange={handleChange}
+                  placeholder={mode === "add" ? "Front-end Developer" : ""}
                   required
                 />
               </Form.Group>
@@ -98,6 +103,7 @@ export default function JobFormModal({
                   name="company"
                   value={form.company}
                   onChange={handleChange}
+                  placeholder={mode === "add" ? "Amazon" : ""}
                 />
               </Form.Group>
 
@@ -107,6 +113,7 @@ export default function JobFormModal({
                   name="location"
                   value={form.location}
                   onChange={handleChange}
+                  placeholder={mode === "add" ? "Toronto, ON" : ""}
                 />
               </Form.Group>
 
@@ -116,6 +123,7 @@ export default function JobFormModal({
                   name="url"
                   value={form.url}
                   onChange={handleChange}
+                  placeholder={mode === "add" ? "https://..." : ""}
                 />
               </Form.Group>
 
@@ -126,6 +134,7 @@ export default function JobFormModal({
                   name="postedAt"
                   value={form.postedAt}
                   onChange={handleChange}
+                  placeholder={mode === "add" ? "React, Node, AWS" : ""}
                 />
               </Form.Group>
 
@@ -135,6 +144,11 @@ export default function JobFormModal({
                   name="source"
                   value={form.source}
                   onChange={handleChange}
+                  placeholder={
+                    mode === "add"
+                      ? "Write a short job summary here..."
+                      : ""
+                  }
                 />
               </Form.Group>
             </Col>
@@ -149,6 +163,11 @@ export default function JobFormModal({
                   name="skillsText"
                   value={form.skillsText}
                   onChange={handleChange}
+                  placeholder={
+                    mode === "add"
+                      ? "React, JavaScript, Node.js, REST APIs"
+                      : ""
+                  }
                 />
               </Form.Group>
 
@@ -160,6 +179,11 @@ export default function JobFormModal({
                   name="description"
                   value={form.description}
                   onChange={handleChange}
+                  placeholder={
+                    mode === "add"
+                      ? `Add a short summary of the job role here.`
+                      : ""
+                  }
                 />
               </Form.Group>
             </Col>
