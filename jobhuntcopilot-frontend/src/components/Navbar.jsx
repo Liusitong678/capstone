@@ -126,14 +126,15 @@ const AppNavbar = () => {
         <Navbar.Collapse id="main-navbar">
           <Nav className="mx-auto nav-center gap-4">
             <NavLink to="/" end className="nav-item-link">
-              Home
-            </NavLink>
-            <NavLink to="/job-import" end className="nav-item-link">
-              Import Jobs
+              Feeds
             </NavLink>
             <NavLink to="/joblab" className="nav-item-link">
-              JobLab
+              Analyzer
             </NavLink>
+            <NavLink to="/job-import" end className="nav-item-link">
+              Fetcher
+            </NavLink>
+            
             <NavLink to="/about" className="nav-item-link">
               About
             </NavLink>
