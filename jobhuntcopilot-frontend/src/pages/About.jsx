@@ -204,7 +204,7 @@ export default function About() {
         </section>
 
         {/* Pricing Section */}
-        <section className="about-pricing">
+        {/* <section className="about-pricing">
           <div className="pricing-inner">
             <h2>Choose Your Plan</h2>
             <p className="pricing-subtitle">
@@ -212,7 +212,6 @@ export default function About() {
             </p>
 
             <div className="pricing-grid">
-              {/* Free Plan */}
               <div className="pricing-card">
                 <div className="pricing-header">
                   <h3>Free</h3>
@@ -236,7 +235,6 @@ export default function About() {
                 </Link>
               </div>
 
-              {/* Pro Plan */}
               <div className="pricing-card pricing-card-featured">
                 <div className="pricing-badge">Most Popular</div>
                 <div className="pricing-header">
@@ -263,7 +261,6 @@ export default function About() {
                 </Link>
               </div>
 
-              {/* Enterprise Plan */}
               <div className="pricing-card">
                 <div className="pricing-header">
                   <h3>Enterprise</h3>
@@ -288,7 +285,7 @@ export default function About() {
               </div>
             </div>
           </div>
-        </section>
+        </section> */}
 
         {/* CTA Section */}
         <section className="about-cta">
@@ -299,9 +296,9 @@ export default function About() {
               confidence, and their next career opportunity with JobHuntCopilot.
             </p>
             <div className="cta-buttons">
-              <Link to="/login" className="cta-btn cta-btn-primary">
+              {/* <Link to="/login" className="cta-btn cta-btn-primary">
                 Get Started Free
-              </Link>
+              </Link> */}
               <Link to="/contact" className="cta-btn cta-btn-secondary">
                 Contact Us
               </Link>
