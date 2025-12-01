@@ -40,7 +40,7 @@ export default function JobDetails() {
   // --- Premium Feature State ---
   const [showPremiumModal, setShowPremiumModal] = useState(false);
 
- const isPremium = profile?.role === "premium";
+ const isPremium = profile?.role === "premium" || profile?.role === "admin";
 
   useEffect(() => {
     if (authLoading) return;

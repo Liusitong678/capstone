@@ -101,6 +101,37 @@ export const fetchJobById = async (id) => {
   return normalizeJob(obj);
 };
 
+// ADMIN: fetch all jobs (including pending / rejected)
+export const fetchAdminJobs = async () => {
+  const data = await api.get("/jobs/admin/all");
+  const list = Array.isArray(data) ? data : data?.jobs || [];
+  return list.map((j, idx) => normalizeJob(j, idx)).filter(Boolean);
+};
+
+// USER: submit a job
+export const submitJob = async (payload) => {
+  // payload: { title, company, location, url, description, skillsText? }
+  // backend will handle validation + limits
+  return await api.post("/jobs/submit", payload);
+};
+
+// USER: fetch their own job posts
+export const fetchMyJobs = async () => {
+  const data = await api.get("/jobs/my");
+  const list = Array.isArray(data) ? data : data?.jobs || [];
+  return list.map((j, idx) => normalizeJob(j, idx)).filter(Boolean);
+};
+
+// ADMIN: approve / reject job
+export const approveJob = async (id) => {
+  return await api.put(`/jobs/${id}/approve`);
+};
+
+export const rejectJob = async (id, reason) => {
+  return await api.put(`/jobs/${id}/reject`, { reason });
+};
+
+
 export const parseJobs = async (url) => {
   console.log(url);
   return await api.post("/jobs/parse-jobs", { url });

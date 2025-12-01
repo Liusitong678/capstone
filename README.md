@@ -5,9 +5,9 @@
 This repository contains the complete source code for **JobHuntCopilot**, an AI-powered job application assistant.
 
 ## Structure
-- **jobhuntcopilot-frontend/** → React (Vite + Tailwind) web client
+- **jobhuntcopilot-frontend/** → React (Vite + Bootstrap) web client
 - **jobhuntcopilot-backend/** → Node.js + Express REST API
-- **jobhuntcopilot-ai/** → Python service for resume-job similarity & cover letter generation
+- **jobhuntcopilot-ai/** → Gemini, Adaptive Similarity Engine
 - **docs/** → Proposal, diagrams, and reports
 
 ## Setup

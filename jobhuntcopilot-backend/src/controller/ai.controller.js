@@ -45,7 +45,7 @@ exports.scoreResume = async (req, res) => {
 
     // Determine model based on user role
     const userRole = req.user?.role || "free";
-    const isPremium = userRole === "premium";
+    const isPremium = userRole === "premium" || userRole === "admin";
 
     let selectedModel = "adaptive_similarity"; // default for free users
 
