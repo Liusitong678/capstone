@@ -18,7 +18,7 @@ import JobCard from "../components/Jobcard";
 import Pager from "../components/Pager";
 import "../styles/dashboard.css";
 import { useAuth } from "../firebase/useAuth";
-import GuestLanding from "./Home";   
+import GuestLanding from "./Home";
 
 export default function Dashboard() {
   const { firebaseUser, loading: authLoading } = useAuth();
@@ -173,7 +173,7 @@ export default function Dashboard() {
               <Button
                 type="button"
                 className="rb-search-btn"
-                onClick={() => {}}
+                onClick={() => { }}
               >
                 Search
               </Button>
@@ -192,13 +192,9 @@ export default function Dashboard() {
       </div>
 
       {/* job list */}
-      <Container fluid className="rb-content">
-        <Row xs={1} sm={2} lg={2} xl={3} xxl={3} className="rb-grid g-5 px-3">
-          {/* <Col xxl={2} lg={3}>
-            <FiltersSidebar state={filters} setState={setFilters} />
-          </Col> */}
-
-          <Col xxl={12} lg={13}>
+      <Container className="rb-content">
+        <Row>
+          <Col>
             <div className="d-flex justify-content-between align-items-center mb-2">
               <div className="rb-section-title">Job Feeds</div>
               <div className="text-muted small">
@@ -224,7 +220,15 @@ export default function Dashboard() {
               />
             )}
 
-            <Row xs={1} sm={2} lg={2} xl={3} xxl={3} className="rb-grid g-4">
+            {/* 真正控制卡片列数的 Row 放这里 */}
+            <Row
+              xs={1}
+              sm={2}
+              lg={2}
+              xl={3}
+              xxl={3}
+              className="rb-grid gy-4 gx-4"
+            >
               {pageItems.map((j) => (
                 <Col key={j._uid}>
                   <JobCard
@@ -252,6 +256,7 @@ export default function Dashboard() {
           </Col>
         </Row>
       </Container>
+
 
       {/* details pop */}
       <Modal
