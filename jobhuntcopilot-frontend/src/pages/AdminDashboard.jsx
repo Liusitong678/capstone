@@ -1,13 +1,16 @@
 import { useEffect, useState } from "react";
-import { Container, Table, Spinner, Alert, Button, Modal } from "react-bootstrap";
+import { Container, Table, Spinner, Alert, Button, Modal, Badge } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../firebase/useAuth";
 import {
-  fetchJobs,
+  fetchAdminJobs,
   deleteJob as apiDeleteJob,
   createJob,
   updateJob,
+  approveJob,
+  rejectJob,
 } from "../services/api";
+
 import JobFormModal from "../components/JobFormModal";
 import "../styles/admin-dashboard.css";
 
@@ -21,28 +24,24 @@ export default function AdminDashboard() {
   const [loadingJobs, setLoadingJobs] = useState(true);
   const [err, setErr] = useState("");
 
-  //  Add / Edit 
+  // Add / Edit
   const [showFormModal, setShowFormModal] = useState(false);
-  const [editingJob, setEditingJob] = useState(null); // null = Add 模式
+  const [editingJob, setEditingJob] = useState(null);
   const [savingJob, setSavingJob] = useState(false);
 
-  // Delete 
+  // Delete
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [jobToDelete, setJobToDelete] = useState(null);
   const [deleting, setDeleting] = useState(false);
 
   const role = profile?.role || roleFromAuth || "free";
 
-  // 封装一个加载 Job 列表的函数，Add / Edit / Delete 后都可以重用
   const loadJobs = async () => {
     try {
       setLoadingJobs(true);
       setErr("");
 
-      const list = await fetchJobs();
-      console.log("AdminDashboard jobs:", list);
-
-      // fetchJobs 
+      const list = await fetchAdminJobs();
       setJobs(list);
     } catch (e) {
       console.error("Load jobs failed in AdminDashboard:", e);
@@ -52,7 +51,6 @@ export default function AdminDashboard() {
     }
   };
 
-  // initial load（ admin only)
   useEffect(() => {
     if (authLoading) return;
     if (!firebaseUser) return;
@@ -61,39 +59,63 @@ export default function AdminDashboard() {
     loadJobs();
   }, [authLoading, firebaseUser, role]);
 
-  // ========== Add / Edit  ==========
+  // ==================== Approve / Reject ====================
+  const getJobId = (job) =>
+    job.raw?._id ||
+    job.raw?.id ||
+    job._id ||
+    job.id ||
+    job._uid;
 
-  // click  Add Job
+  const handleApprove = async (job) => {
+    try {
+      const jobId = getJobId(job);
+      if (!jobId) throw new Error("Missing job ID");
+
+      await approveJob(jobId);
+      await loadJobs();
+    } catch (e) {
+      console.error("Approve job failed:", e);
+      setErr(e.message || "Failed to approve job");
+    }
+  };
+
+  const handleReject = async (job) => {
+    const reason = prompt("Reason for rejection?", "Low-quality job posting");
+    try {
+      const jobId = getJobId(job);
+      if (!jobId) throw new Error("Missing job ID");
+
+      await rejectJob(jobId, reason || undefined);
+      await loadJobs();
+    } catch (e) {
+      console.error("Reject job failed:", e);
+      setErr(e.message || "Failed to reject job");
+    }
+  };
+
+  // ==================== Add / Edit ====================
+
   const handleAddClick = () => {
-    setEditingJob(null); // null = 新建
+    setEditingJob(null);
     setShowFormModal(true);
   };
 
-  // click Edit
   const handleEditClick = (job) => {
     setEditingJob(job);
     setShowFormModal(true);
   };
 
-  // JobFormModal submit
   const handleSaveJob = async (payload) => {
     try {
       setSavingJob(true);
       setErr("");
 
       if (editingJob) {
-        const jobId =
-          editingJob.raw?._id ||
-          editingJob.raw?.id ||
-          editingJob._id ||
-          editingJob.id ||
-          editingJob._uid;
-
+        const jobId = getJobId(editingJob);
         if (!jobId) throw new Error("Missing job id for update");
-
         await updateJob(jobId, payload);
       } else {
-        // Add mode：POST /api/jobs
         await createJob(payload);
       }
 
@@ -108,22 +130,19 @@ export default function AdminDashboard() {
     }
   };
 
-  // ========== Delete  ==========
+  // ==================== Delete ====================
 
-  // click Delete，open Modal
   const handleAskDelete = (job) => {
     setJobToDelete(job);
     setShowDeleteModal(true);
   };
 
-  // undelete
   const handleCancelDelete = () => {
     if (deleting) return;
     setShowDeleteModal(false);
     setJobToDelete(null);
   };
 
-  // confirm delete
   const handleConfirmDelete = async () => {
     if (!jobToDelete) return;
 
@@ -131,20 +150,11 @@ export default function AdminDashboard() {
       setDeleting(true);
       setErr("");
 
-      const jobId =
-        jobToDelete.raw?._id ||
-        jobToDelete.raw?.id ||
-        jobToDelete._id ||
-        jobToDelete.id ||
-        jobToDelete._uid;
-
-      if (!jobId) {
-        throw new Error("Missing job id for delete");
-      }
+      const jobId = getJobId(jobToDelete);
+      if (!jobId) throw new Error("Missing job ID");
 
       await apiDeleteJob(jobId);
 
-      // Update front-end list
       setJobs((prev) => prev.filter((j) => j._uid !== jobToDelete._uid));
 
       setShowDeleteModal(false);
@@ -157,7 +167,7 @@ export default function AdminDashboard() {
     }
   };
 
-  // ========== 权限 & Loading 拦截 ==========
+  // ==================== PERMISSION GUARDS ====================
 
   if (authLoading) {
     return (
@@ -188,7 +198,6 @@ export default function AdminDashboard() {
       </div>
     );
   }
-
 
   return (
     <div className="admin-dashboard-wrapper">
@@ -221,19 +230,23 @@ export default function AdminDashboard() {
                   <th>Title</th>
                   <th>Company</th>
                   <th>Location</th>
+                  <th>Status</th>    {/* ← NEW COLUMN */}
                   <th>Source</th>
                   <th>Posted At</th>
                   <th>Skills</th>
-                  <th style={{ width: 160 }}>Actions</th>
+                  <th style={{ width: 220 }}>Actions</th>
                 </tr>
               </thead>
+
               <tbody>
                 {jobs.map((job, index) => {
-                  const id = job._uid || job._id || job.id;
+                  const id = getJobId(job);
                   const posted =
                     job.postedAt && !isNaN(new Date(job.postedAt))
                       ? new Date(job.postedAt).toLocaleDateString()
                       : "-";
+
+                  const status = job.raw?.status || "approved"; // default for old jobs
 
                   return (
                     <tr key={id || index}>
@@ -241,6 +254,20 @@ export default function AdminDashboard() {
                       <td>{job.title || "-"}</td>
                       <td>{job.company || "Unknown"}</td>
                       <td>{job.location || "Unknown"}</td>
+
+                      {/* ========== BADGE FOR STATUS ========== */}
+                      <td>
+                        {status === "pending" && (
+                          <Badge bg="warning" text="dark">Pending</Badge>
+                        )}
+                        {status === "approved" && (
+                          <Badge bg="success">Approved</Badge>
+                        )}
+                        {status === "rejected" && (
+                          <Badge bg="danger">Rejected</Badge>
+                        )}
+                      </td>
+
                       <td>{job.source || "-"}</td>
                       <td>{posted}</td>
                       <td>
@@ -248,20 +275,42 @@ export default function AdminDashboard() {
                           ? job.skills.join(", ")
                           : "-"}
                       </td>
+
+                      {/* ========== ACTION BUTTONS ========== */}
                       <td>
                         <div className="d-flex gap-2">
+
+                          {/* Approve / Reject only for pending jobs */}
+                          {status === "pending" && (
+                            <>
+                              <Button
+                                variant="success"
+                                size="sm"
+                                onClick={() => handleApprove(job)}
+                              >
+                                Approve
+                              </Button>
+                              <Button
+                                variant="danger"
+                                size="sm"
+                                onClick={() => handleReject(job)}
+                              >
+                                Reject
+                              </Button>
+                            </>
+                          )}
+
                           <Button
                             variant="outline-secondary"
                             size="sm"
-                            className="btn-pill-soft" 
                             onClick={() => handleEditClick(job)}
                           >
                             Edit
                           </Button>
+
                           <Button
                             variant="outline-danger"
                             size="sm"
-                            className="btn-pill-outline"
                             onClick={() => handleAskDelete(job)}
                           >
                             Delete
@@ -272,11 +321,12 @@ export default function AdminDashboard() {
                   );
                 })}
               </tbody>
+
             </Table>
           </div>
         )}
 
-        {/* ====== Delete 确认弹窗 ====== */}
+        {/* Delete Modal */}
         <Modal
           show={showDeleteModal}
           onHide={handleCancelDelete}
@@ -287,38 +337,22 @@ export default function AdminDashboard() {
             <Modal.Title>Delete Job</Modal.Title>
           </Modal.Header>
           <Modal.Body>
-            <p className="mb-2">
-              Are you sure you want to delete
-              <strong> "{jobToDelete?.title || "this job"}"</strong>
-              {jobToDelete?.company && (
-                <>
-                  {" "}
-                  at <strong>{jobToDelete.company}</strong>
-                </>
-              )}
-              ?
-            </p>
-            <p className="text-muted mb-0">This action cannot be undone.</p>
+            Are you sure you want to delete
+            <strong> "{jobToDelete?.title}"</strong>?
+            <br />
+            <span className="text-muted">This action cannot be undone.</span>
           </Modal.Body>
           <Modal.Footer>
-            <Button
-              variant="secondary"
-              onClick={handleCancelDelete}
-              disabled={deleting}
-            >
+            <Button variant="secondary" onClick={handleCancelDelete} disabled={deleting}>
               Cancel
             </Button>
-            <Button
-              variant="danger"
-              onClick={handleConfirmDelete}
-              disabled={deleting}
-            >
+            <Button variant="danger" onClick={handleConfirmDelete} disabled={deleting}>
               {deleting ? "Deleting..." : "Delete"}
             </Button>
           </Modal.Footer>
         </Modal>
 
-        {/* ====== Add / Edit Job 表单弹窗 ====== */}
+        {/* Add / Edit Modal */}
         <JobFormModal
           show={showFormModal}
           mode={editingJob ? "edit" : "add"}
