@@ -157,7 +157,7 @@ const AppNavbar = () => {
             {/* Admin 额外菜单 */}
             {firebaseUser && role === "admin" && (
               <NavLink to="/admin" className="nav-item-link">
-                Admin
+                Job Management
               </NavLink>
             )}
 
@@ -219,7 +219,7 @@ const AppNavbar = () => {
 
               {/* 只有 admin 才看到 Admin Dashboard */}
               {role === "admin" && (
-                <NavDropdown.Item as={Link} to="/admin">
+                <NavDropdown.Item as={Link} to="/super-admin">
                   Admin Dashboard
                 </NavDropdown.Item>
               )}

@@ -33,7 +33,7 @@ export default function JobLab() {
   const [resumeUrl, setResumeUrl] = useState(profile?.resumeUrl || "");
 
   // Premium user check
-  const isPremium = profile?.role === "premium";
+  const isPremium = profile?.role === "premium" || profile?.role === "admin";
 
   // Model selection for premium users
   const [selectedModel, setSelectedModel] = useState("adaptive_similarity");
