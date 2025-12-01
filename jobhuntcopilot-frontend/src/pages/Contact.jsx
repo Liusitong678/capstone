@@ -166,13 +166,13 @@ const Contact = () => {
               </div>
             </div>
 
-            <div className="card border-0 shadow-sm bg-primary bg-gradient text-white">
+            {/* <div className="card border-0 shadow-sm bg-primary bg-gradient text-white">
               <div className="card-body p-4">
                 <h6 className="fw-semibold mb-2">Business Hours</h6>
                 <p className="small mb-2">Monday - Friday: 9:00 AM - 6:00 PM</p>
                 <p className="small mb-0">Saturday - Sunday: Closed</p>
               </div>
-            </div>
+            </div> */}
           </div>
         </div>
 
